@@ -34,6 +34,7 @@ export function AppShell({
         </div>
         <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-3 pt-2" aria-label="ניווט ראשי">
           <NavLink href="/">בית</NavLink>
+          <NavLink href="/schedule">{isManager ? "סידור עבודה" : "סידור"}</NavLink>
           <NavLink href="/availability">{isManager ? "אילוצים" : "האילוצים שלי"}</NavLink>
           <NavLink href="/absences">{isManager ? "היעדרויות" : "חופשה ומחלה"}</NavLink>
           {isManager && <NavLink href="/employees">עובדים</NavLink>}

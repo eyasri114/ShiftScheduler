@@ -33,10 +33,12 @@ export function weekStartOf(iso: string): string {
 export const nextWeekStart = () => addDays(weekStartOf(todayIso()), 7);
 
 /** A valid Sunday from a URL parameter, or next week. */
-export function weekParam(value: string | string[] | undefined): string {
+export function weekParam(value: string | string[] | undefined, fallback: string = nextWeekStart()): string {
   const v = Array.isArray(value) ? value[0] : value;
-  return isIsoDate(v) && fromIso(v).getDay() === 0 ? v : nextWeekStart();
+  return isIsoDate(v) && fromIso(v).getDay() === 0 ? v : fallback;
 }
+
+export const thisWeekStart = () => weekStartOf(todayIso());
 
 export const shortDate = (iso: string) => {
   const d = fromIso(iso);

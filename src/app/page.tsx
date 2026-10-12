@@ -24,12 +24,13 @@ export default async function Home() {
       <h1 className="text-2xl font-bold">שלום, {context.full_name.split(" ")[0]}</h1>
       <p className="mt-1 text-muted">
         נכנסת בתור {ROLE_LABEL[context.role]}.{" "}
-        {isManager ? "בשלב הבא יתווסף כאן לוח הסידור השבועי." : "בקרוב יופיעו כאן המשמרות שלך."}
+        {isManager ? "מכאן בונים את הסידור, מאשרים בקשות ומנהלים את הסניף." : "כאן רואים את הסידור, מסמנים אילוצים ומבקשים חופשה."}
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         {isManager ? (
           <>
+            <QuickLink href="/schedule" title="סידור עבודה" text="שיבוץ אוטומטי לשבוע הבא, תיקונים ופרסום לעובדים." />
             <QuickLink href="/availability" title="אילוצים" text="מי סימן אילוצים לשבוע הבא, ומה כל אחד סימן." />
             <QuickLink href="/absences" title="היעדרויות" text="אישור חופשות ובדיקת אישורי מחלה." />
             <QuickLink href="/employees" title="עובדים" text="הוספה ועריכה של עובדים, היקף משרה, יום מנוחה ואחראי משמרת." />
@@ -37,6 +38,7 @@ export default async function Home() {
           </>
         ) : (
           <>
+            <QuickLink href="/schedule" title="הסידור" text="המשמרות שלך ושל הצוות, אחרי שהמנהל מפרסם." />
             <QuickLink href="/availability" title="האילוצים שלי" text="סמנו לאילו משמרות אתם יכולים להגיע בשבוע הבא." />
             <QuickLink href="/absences" title="חופשה ומחלה" text="בקשת חופשה, דיווח מחלה וצירוף אישור מחלה." />
           </>

@@ -14,8 +14,8 @@ separate manager and employee views. Hebrew, right-to-left.
 | 2 | Connect Supabase, sign-in for managers and employees | ✅ done |
 | 3 | Manager screens: branch settings, employees | ✅ done |
 | 4 | Availability, vacation and sick leave (private sick-note storage) | ✅ done |
-| 5 | Scheduling engine + schedule board, publish | next |
-| 6 | Employee mobile app (PWA), notifications, deploy to Vercel | |
+| 5 | Scheduling engine + schedule board, publish | ✅ done |
+| 6 | Employee mobile app (PWA), notifications, deploy to Vercel | next |
 
 ## Getting started
 
@@ -50,6 +50,7 @@ supabase/
     20261012000003_auth.sql      links invited employees to their accounts; my_context()
     20261012000004_manage_members.sql  add_branch_member(); only owners create managers
     20261012000005_absences.sql  past weeks locked for employees; approved absences clear shifts
+    20261012000006_schedule.sql  apply_schedule() saves only real changes; changed_since_publish()
   setup-supabase.sql             all migrations in one file, to paste into Supabase
   demo-data.sql                  optional demo branch, with you as owner
   seed.sql                       demo branch with 12 employees (same as the prototype)
@@ -59,6 +60,7 @@ supabase/
     02_auth_test.sql             7 checks of account linking
     03_manage_members_test.sql   9 checks of adding and editing employees
     04_absences_test.sql         9 checks of constraints, vacation and sick leave
+    05_schedule_test.sql         6 checks of saving and publishing schedules
 ```
 
 Main tables: `organizations`, `branches`, `members`, `branch_members`,
@@ -73,11 +75,30 @@ Main tables: `organizations`, `branches`, `members`, `branch_members`,
 | `/login`, `/signup` | everyone | sign in, sign up, email confirmation |
 | `/onboarding` | new account | open a new business |
 | `/` | everyone | home: team list; managers get shortcuts |
+| `/schedule` | everyone | managers: auto-schedule, edit, lock, staff up a week, close a day, publish; employees: the published week with their shifts |
 | `/availability` | everyone | employees mark prefer / can't per shift; managers see who submitted and can edit |
 | `/absences` | everyone | vacation requests (manager approves), sick leave with certificate upload and review |
 | `/employees` | managers | list, add, edit, active/inactive, rest day, shift lead, minors |
 | `/employees/[id]` | managers | edit one employee |
 | `/settings` | managers | shift model, hours and staffing per weekday, closed days, rest rules |
+
+## Scheduling engine
+
+`src/lib/scheduler/engine.ts` — plain TypeScript with no database or React code,
+so the same rules run on the server (auto-schedule) and in the browser (instant
+checks on the board).
+
+- **Never broken by the engine:** approved vacation or sick leave, fixed rest day
+  (including a night shift running into it), "can't" constraints, shift types the
+  person isn't set up for, minors between 22:00 and 06:00, weekly maximum, one
+  shift per day, minimum rest between shifts, weekly continuous rest.
+- **Weighed:** every shift fully staffed, a shift lead on every shift, preferences,
+  each person's weekly minimum, even spread of shifts, nights and weekends,
+  avoiding people with a pending vacation request, fewer morning/evening jumps.
+- **Method:** greedy fill (hardest shifts first), then local search (moves and
+  swaps), best of several restarts. Locked assignments are kept.
+- **Tests:** `npm run test:engine` — 10 tests, including a 60-person branch with
+  three shifts a day in under 5 seconds.
 
 ### What the database guarantees
 
@@ -92,7 +113,9 @@ Main tables: `organizations`, `branches`, `members`, `branch_members`,
 
 ### Run the tests
 
-Needs PostgreSQL 15+ and `psql`. With Docker:
+Engine tests need only Node: `npm run test:engine`.
+
+Database tests need PostgreSQL 15+ and `psql`. With Docker:
 
 ```bash
 docker run -d --name shifts-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:engine": "node --experimental-strip-types --no-warnings --test tests/engine.test.ts",
+    "test:db": "bash scripts/test-db.sh"
   },
   "dependencies": {
     "@fontsource-variable/heebo": "^5.3.0",

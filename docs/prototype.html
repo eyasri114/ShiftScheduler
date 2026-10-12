@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>סידור משמרות – אב-טיפוס</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F2F4F3;--surface:#FFFFFF;--ink:#16302D;--muted:#596C69;--line:#D6DEDC;--line-strong:#B6C4C1;
+  --m:#D38C17;--m-tint:#FCF1DC;--e:#6A55B4;--e-tint:#EEEAF8;--n:#22406E;--n-tint:#E3E9F3;
+  --ok:#23774A;--ok-tint:#E0F1E7;--bad:#B9342C;--bad-tint:#FBE6E4;--warn:#99620F;--warn-tint:#FAEFDB;
+  --btn:#16302D;--btn-ink:#FFFFFF;--focus:#22406E;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1716;--surface:#16211F;--ink:#E4EDEB;--muted:#9DB1AD;--line:#283735;--line-strong:#3B4D4A;
+    --m:#E7A83E;--m-tint:#30271A;--e:#A493E6;--e-tint:#252136;--n:#86A8DE;--n-tint:#1A2536;
+    --ok:#5CC28A;--ok-tint:#173226;--bad:#F07A70;--bad-tint:#3A1D1B;--warn:#E3AA55;--warn-tint:#352812;
+    --btn:#E4EDEB;--btn-ink:#0E1716;--focus:#86A8DE;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1716;--surface:#16211F;--ink:#E4EDEB;--muted:#9DB1AD;--line:#283735;--line-strong:#3B4D4A;
+  --m:#E7A83E;--m-tint:#30271A;--e:#A493E6;--e-tint:#252136;--n:#86A8DE;--n-tint:#1A2536;
+  --ok:#5CC28A;--ok-tint:#173226;--bad:#F07A70;--bad-tint:#3A1D1B;--warn:#E3AA55;--warn-tint:#352812;
+  --btn:#E4EDEB;--btn-ink:#0E1716;--focus:#86A8DE;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'IBM Plex Sans Hebrew','Segoe UI',Arial,sans-serif}
+.app{max-width:1240px;margin:0 auto;padding:22px 20px 48px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:14px}
+h1{font-size:28px;line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+.week{display:flex;align-items:center;gap:10px;margin-top:8px;color:var(--muted);flex-wrap:wrap}
+.week strong{color:var(--ink);font-weight:600}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto}
+.tabs button{appearance:none;border:0;background:none;font:inherit;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;font-weight:500}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:600}
+.btn{appearance:none;font:inherit;font-weight:600;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;line-height:1.3}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn.primary{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn.ghost{background:transparent}
+.link{appearance:none;border:0;background:none;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:start}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.pill{font-size:13px;font-weight:600;padding:4px 12px;border-radius:999px;border:1px solid var(--line-strong);white-space:nowrap}
+.pill.pub{background:var(--ok-tint);color:var(--ok);border-color:transparent}
+.pill.chg{background:var(--warn-tint);color:var(--warn);border-color:transparent}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.toolbar .spacer{flex:1}
+.toolbar label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+select,input[type=text],input[type=number],input[type=time]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:6px;padding:5px 8px}
+input[type=checkbox],input[type=radio]{accent-color:var(--ink);width:16px;height:16px}
+.summary{margin:0 0 12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;align-items:baseline}
+.summary strong{color:var(--ink);font-size:20px;font-variant-numeric:tabular-nums}
+.grid-wrap,.tbl-wrap{overflow-x:auto}
+.grid-wrap{border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.grid{border-collapse:separate;border-spacing:0;width:100%;min-width:940px}
+.grid th,.grid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;padding:0}
+.grid tr>*:first-child{border-right:0}
+.grid tbody tr:last-child>*{border-bottom:0}
+.grid thead th{padding:10px 8px;text-align:center;font-weight:600;background:var(--surface)}
+.grid thead th.isclosed{color:var(--muted)}
+.dname{font-size:15px}
+.ddate{font-size:13px;color:var(--muted);font-weight:400}
+.daytoggle{font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+.rowh{position:sticky;right:0;z-index:1;background:var(--surface);padding:14px 12px;text-align:start;width:84px;min-width:84px;font-weight:700}
+.rowh.m{box-shadow:inset -5px 0 0 var(--m)}
+.rowh.e{box-shadow:inset -5px 0 0 var(--e)}
+.rowh.n{box-shadow:inset -5px 0 0 var(--n)}
+.cell.m{background:var(--m-tint)}
+.cell.e{background:var(--e-tint)}
+.cell.n{background:var(--n-tint)}
+.cell.closed,.cell.off{background:var(--bg)}
+.cellbtn{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:7px;width:100%;min-height:124px;padding:9px;cursor:pointer}
+.cellbtn.static{cursor:default}
+button.cellbtn:hover{box-shadow:inset 0 0 0 2px var(--line-strong)}
+button.cellbtn:focus-visible{outline:2px solid var(--focus);outline-offset:-3px}
+.cellhead{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cnt{font-weight:700;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--surface);color:var(--ink)}
+.cnt.full{color:var(--ok)}
+.cnt.short{color:var(--surface);background:var(--bad)}
+.ovr{font-size:11px;font-weight:600;color:var(--ink);background:var(--surface);border-radius:4px;padding:0 5px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;line-height:1.2;padding:4px 7px;border-radius:6px;background:var(--surface);border:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.chip.ghost{background:transparent;border:1px dashed var(--bad);color:var(--bad)}
+.chip.bad{border-color:var(--bad);color:var(--bad);border-width:1.5px}
+.chip.me{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.dimmed .chip:not(.me){opacity:.35}
+.lead-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.75}
+.ico{width:11px;height:11px;flex:none}
+.closedlbl{padding:14px 8px;text-align:center;color:var(--muted);font-size:13px}
+.offbtn{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:124px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center}
+.offbtn span{text-decoration:underline;text-underline-offset:3px}
+.offbtn:focus-visible{outline:2px solid var(--focus);outline-offset:-3px}
+.start-hint{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.start-hint p{margin:0}
+.panels{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
+@media(min-width:900px){.panels{grid-template-columns:1fr 1fr}}
+.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card{margin-bottom:16px}
+.panel h2,.card h2,.mine h2{font-size:17px;margin:0 0 10px;font-weight:700}
+.issues{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.issues li{padding:6px 10px;border-radius:6px;font-size:14px}
+.issues li.bad{background:var(--bad-tint);color:var(--bad)}
+.issues li.warn{background:var(--warn-tint);color:var(--warn)}
+.empty{color:var(--muted);margin:0}
+table.stats{width:100%;border-collapse:collapse;font-size:14px}
+.stats th,.stats td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:start}
+.stats th{color:var(--muted);font-weight:500}
+.num{font-variant-numeric:tabular-nums}
+.under{color:var(--warn);font-weight:600}
+.muted{color:var(--muted)}
+.mine{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.mine ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.mine li{display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.dot.m{background:var(--m)}.dot.e{background:var(--e)}.dot.n{background:var(--n)}
+.note{background:var(--warn-tint);color:var(--warn);padding:6px 10px;border-radius:6px;font-size:14px;margin:0 0 10px}
+dialog{border:0;border-radius:14px;padding:0;width:min(560px,calc(100% - 24px));max-height:calc(100% - 48px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(8,18,17,.5)}
+.dlg{padding:20px 22px}
+.dlg h2{margin:0;font-size:20px}
+.dlg h3{font-size:14px;color:var(--muted);margin:18px 0 4px;font-weight:600}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.rows li:last-child{border-bottom:0}
+.rows .acts{display:flex;gap:6px;flex:none}
+.reason{font-size:13px;color:var(--muted)}
+.reason.bad{color:var(--bad)}
+.tag{font-size:12px;padding:1px 6px;border-radius:4px;background:var(--bg);margin-inline-start:6px;font-weight:500;white-space:nowrap}
+.tag.ok{background:var(--ok-tint);color:var(--ok)}
+.stepper{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.stepper output{min-width:2ch;text-align:center;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.stepper .btn{width:36px;padding:6px 0;font-size:18px;line-height:1}
+.hint{font-size:13px;color:var(--muted);margin:6px 0 0}
+.dlg-foot{display:flex;justify-content:flex-end;margin-top:18px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:8px;font-size:14px;max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+#toast.show{opacity:1}
+table.agrid{border-collapse:separate;border-spacing:6px;width:100%;min-width:680px}
+.agrid th{font-weight:600;font-size:14px;text-align:center}
+.agrid th.arow{text-align:start;width:70px}
+.av{all:unset;box-sizing:border-box;display:block;text-align:center;padding:14px 4px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;border:1px solid var(--line-strong);background:var(--surface);width:100%}
+.av:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.av.pref{background:var(--ok-tint);color:var(--ok);border-color:transparent}
+.av.no{background:var(--bad-tint);color:var(--bad);border-color:transparent}
+.av.na{cursor:default;color:var(--muted);background:transparent;border-style:dashed;font-weight:400;font-size:13px}
+.emp-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.emp-pill{appearance:none;font:inherit;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:14px}
+.emp-pill[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.emp-pill small{opacity:.75;margin-inline-start:6px}
+.form-table{width:100%;border-collapse:collapse;font-size:14px}
+.form-table th,.form-table td{padding:8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}
+.form-table thead th{color:var(--muted);font-weight:500}
+.form-table input[type=number]{width:64px}
+.form-table input[type=text]{min-width:140px}
+.intro{color:var(--muted);margin:0 0 16px;max-width:72ch}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field>span{font-size:14px;color:var(--muted)}
+.inline{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.tcell{display:flex;flex-direction:column;gap:6px}
+.tcell .times{display:flex;align-items:center;gap:4px}
+.tcell input[type=time]{width:100px;padding:3px 4px}
+.foot{margin-top:28px;color:var(--muted);font-size:13px}
+.absform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:4px 16px}
+.absform .wide{grid-column:1/-1}
+.absform input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:6px;padding:5px 8px}
+.tag.vac{background:var(--e-tint);color:var(--e)}
+.tag.sick{background:var(--bad-tint);color:var(--bad)}
+.tag.warn{background:var(--warn-tint);color:var(--warn)}
+.reason.ok{color:var(--ok)}.reason.warn{color:var(--warn)}
+.rows .acts{flex-wrap:wrap;justify-content:flex-end}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+#fileDlg{width:min(780px,calc(100% - 24px))}
+.cert{display:block;max-width:100%;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;margin-top:12px;background:#fff}
+.certobj{width:100%;height:65vh;margin-top:12px;border:1px solid var(--line);border-radius:8px}
+.pdfpages{display:grid;gap:10px}
+tr.inactive td{opacity:.55}
+tr.inactive td:first-child,tr.inactive td:last-child{opacity:1}
+.topright{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.viewas{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:14px}
+.emp-mode .viewas select{border-color:var(--ink);font-weight:600}
+.count-note{color:var(--muted);font-size:14px;margin:0 0 10px}
+@media (max-width:640px){.app{padding:14px 12px 40px}h1{font-size:23px}}
+@media print{
+  .tabs,.toolbar,.panels,.daytoggle,.week button,#status,.foot,.start-hint,.viewas{display:none!important}
+  body{background:#fff}.grid-wrap{border:0}table.grid{min-width:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1 id="branchName"></h1>
+      <div class="week">
+        <button class="btn sm ghost" data-act="prevWeek">השבוע הקודם</button>
+        <span>סידור לשבוע <strong id="weekLabel"></strong></span>
+        <button class="btn sm ghost" data-act="nextWeek">השבוע הבא</button>
+      </div>
+    </div>
+    <div class="topright"><label class="viewas">צופה בתור <select id="viewAs" aria-label="צופה בתור"></select></label><span id="status" class="pill"></span></div>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="מסכים">
+    <button role="tab" data-tab="schedule">סידור השבוע</button>
+    <button role="tab" data-tab="avail">אילוצים</button>
+    <button role="tab" data-tab="absences">היעדרויות</button>
+    <button role="tab" data-tab="emps">עובדים</button>
+    <button role="tab" data-tab="settings">הגדרות סניף</button>
+  </nav>
+  <main id="view"></main>
+  <p class="foot">אב-טיפוס: ההתראות לעובדים מדומות, והנתונים נשמרים רק בדפדפן הזה.</p>
+</div>
+<dialog id="dlg" aria-label="עריכת משמרת"></dialog>
+<dialog id="fileDlg" aria-label="צפייה בקובץ מצורף"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const SH={m:{name:'בוקר'},e:{name:'ערב'},n:{name:'לילה'}};
+const LBL={ok:'זמין/ה',pref:'מעדיף/ה',no:'לא יכול/ה'};
+const KEY='shift-proto-v1';
+const LOCK='<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="7" width="10" height="7" rx="1.5" fill="currentColor"/></svg>';
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const isoOf=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseIso=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
+const toMin=t=>{const [h,m]=String(t).split(':').map(Number);return (h||0)*60+(m||0);};
+function nextSunday(){const t=new Date();t.setHours(0,0,0,0);const add=(7-t.getDay())%7||7;t.setDate(t.getDate()+add);return isoOf(t);}
+function addDays(iso,n){const d=parseIso(iso);d.setDate(d.getDate()+n);return isoOf(d);}
+function dayDate(d){const x=parseIso(S.weekStart);x.setDate(x.getDate()+d);return `${x.getDate()}.${x.getMonth()+1}`;}
+function weekLabel(){const s=parseIso(S.weekStart),e=parseIso(addDays(S.weekStart,6));return `${s.getDate()}.${s.getMonth()+1}–${e.getDate()}.${e.getMonth()+1}.${e.getFullYear()}`;}
+
+/* ---------- data ---------- */
+function newWeek(st,avail){
+  return {avail:avail||{},overrides:{},closed:Object.fromEntries(st.branch.closedDays.map(d=>[d,true])),assign:{},locked:{},status:'draft',changed:{}};
+}
+function seed(){
+  const days=[];
+  for(let d=0;d<7;d++) days.push({m:{req:3,start:'07:00',end:'15:00'},e:{req:3,start:'15:00',end:'23:00'},n:{req:1,start:'23:00',end:'07:00'}});
+  days[4].e.req=4;
+  days[5].m={req:5,start:'07:00',end:'14:00'};days[5].e.req=0;days[5].n.req=0;
+  days[6].m.req=2;days[6].e.req=2;
+  const list=[['דנה כהן',3,5,1],['אבי לוי',3,5,1],['מאיה פרץ',2,4],['יוסי מזרחי',3,5],['נועה אברהם',2,3,0,1],['עומר ביטון',2,4],
+    ['שירה דהן',3,5],['איתי פרידמן',3,5,1],['רוני גבאי',2,4],['תמר שלום',2,3],['אחמד חאג׳',3,5],['אולגה סמירנוב',2,4]];
+  const emps=list.map(([name,min,max,lead,minor])=>({id:uid(),name,min,max,lead:!!lead,minor:!!minor,active:true,allowed:{m:true,e:!minor,n:!minor}}));
+  const marks=[[0,'0-e','no'],[0,'5-m','pref'],[1,'1-m','no'],[1,'2-m','no'],[2,'0-m','pref'],[2,'3-e','no'],[2,'4-e','no'],[3,'5-m','no'],
+    [4,'1-m','pref'],[4,'3-m','pref'],[5,'0-m','no'],[5,'1-m','no'],[5,'2-e','pref'],[6,'4-m','pref'],[7,'2-e','no'],[8,'0-e','pref'],
+    [8,'1-e','pref'],[9,'5-m','pref'],[10,'3-m','no'],[11,'2-m','pref'],[11,'4-e','pref']];
+  const avail={};
+  marks.forEach(([i,k,v])=>{const id=emps[i].id;(avail[id]=avail[id]||{})[k]=v;});
+  const st={branch:{name:'סניף מרכז',model:2,closedDays:[6],rules:{minRest:8,weeklyRest:36,needLead:true}},days,emps,weekStart:nextSunday(),weeks:{}};
+  st.weeks[st.weekStart]=newWeek(st,avail);
+  st.absences=[
+    {id:uid(),empId:emps[5].id,type:'sick',from:addDays(st.weekStart,2),to:addDays(st.weekStart,2),note:'חום',status:'approved',file:null,fileCheck:null},
+    {id:uid(),empId:emps[9].id,type:'vacation',from:addDays(st.weekStart,3),to:addDays(st.weekStart,4),note:'חתונה של אחותי',status:'pending',file:null,fileCheck:null}
+  ];
+  return st;
+}
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){const st=JSON.parse(r);if(st&&st.branch&&st.days&&st.emps&&st.weeks&&st.weekStart){st.absences=st.absences||[];return st;}}}catch(e){}
+  return seed();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){return false;}}
+let S=load();
+const UI={tab:'schedule',viewAs:'manager',availEmp:null,cellKey:null};
+
+function ensureWeek(){
+  if(S.weeks[S.weekStart]) return;
+  const keys=Object.keys(S.weeks).sort();
+  const prev=keys.filter(k=>k<S.weekStart).pop()||keys[keys.length-1];
+  S.weeks[S.weekStart]=newWeek(S,prev?JSON.parse(JSON.stringify(S.weeks[prev].avail)):{});
+}
+function W(){ensureWeek();const w=S.weeks[S.weekStart];w.changed=w.changed||{};return w;}
+const activeTypes=()=>S.branch.model===3?['m','e','n']:['m','e'];
+function slotReq(w,d,s){const k=`${d}-${s}`;return (k in w.overrides)?w.overrides[k]:S.days[d][s].req;}
+function availOf(w,id,k){const a=w.avail[id];return (a&&a[k])||'ok';}
+function makeSlot(d,s,req){const c=S.days[d][s];const st=toMin(c.start);let en=toMin(c.end);if(en<=st)en+=1440;return {key:`${d}-${s}`,d,s,req,start:d*1440+st,end:d*1440+en};}
+function onRest(e,sl){if(e.restDay===null||e.restDay===undefined||e.restDay==='')return false;const r=Number(e.restDay)*1440;return [r,r+7*1440].some(st=>sl.start<st+1440&&sl.end>st);}
+const isActive=e=>e.active!==false;
+const fmtD=iso=>{const d=parseIso(iso);return `${d.getDate()}.${d.getMonth()+1}`;};
+const rangeTxt=a=>a.from===a.to?fmtD(a.from):`${fmtD(a.from)}–${fmtD(a.to)}`;
+const daysIn=a=>Math.round((parseIso(a.to)-parseIso(a.from))/864e5)+1;
+const ABS={vacation:'חופשה',sick:'מחלה'};
+function markChanged(w,id){if(w.status==='published'){w.changed[id]=true;}}
+
+function buildCtx(){
+  const w=W();const slots=[];const by={};
+  for(let d=0;d<7;d++){
+    if(w.closed[d]) continue;
+    for(const s of activeTypes()){const req=slotReq(w,d,s);if(req<=0)continue;const o=makeSlot(d,s,req);slots.push(o);by[o.key]=o;}
+  }
+  const act=S.emps.filter(isActive);
+  const totalReq=slots.reduce((a,b)=>a+b.req,0);
+  const sumMax=act.reduce((a,e)=>a+e.max,0)||1;
+  const target={};
+  act.forEach(e=>{target[e.id]=Math.min(e.max,Math.max(e.min,totalReq*e.max/sumMax));});
+  const abs={};
+  for(const a of S.absences){
+    if(a.status==='rejected') continue;
+    for(let d=0;d<7;d++){const dt=addDays(S.weekStart,d);if(dt<a.from||dt>a.to)continue;
+      const m=abs[a.empId]=abs[a.empId]||{};if(!m[d]||a.status==='approved')m[d]=a;}
+  }
+  return {w,slots,by,target,abs,rules:S.branch.rules,emps:act,empById:Object.fromEntries(act.map(e=>[e.id,e])),anyLead:act.some(e=>e.lead)};
+}
+function keysOf(a,id,ctx){return Object.keys(a).filter(k=>ctx.by[k]&&a[k]&&a[k].includes(id));}
+function absOn(ctx,id,d){const m=ctx.abs[id];return m?m[d]||null:null;}
+function slotHasLead(arr,ctx){return arr.some(id=>ctx.empById[id]&&ctx.empById[id].lead);}
+
+/* ---------- rules ---------- */
+function violation(emp,slot,others,ctx){
+  const ab=absOn(ctx,emp.id,slot.d);
+  if(ab&&ab.status==='approved') return ab.type==='sick'?'במחלה':'בחופשה מאושרת';
+  if(onRest(emp,slot)) return `יום מנוחה קבוע (${DAYS[Number(emp.restDay)]})`;
+  if(availOf(ctx.w,emp.id,slot.key)==='no') return 'סימן/ה שלא יכול/ה להגיע';
+  if(emp.minor&&slot.s==='n') return 'קטין/ה: אסור לשבץ במשמרת לילה';
+  if(!emp.allowed[slot.s]) return `לא מוגדר/ת למשמרת ${SH[slot.s].name}`;
+  if(others.length+1>emp.max) return `מעל המקסימום (${emp.max} משמרות)`;
+  const minRest=ctx.rules.minRest*60;
+  for(const k of others){
+    const o=ctx.by[k];if(!o)continue;
+    if(o.d===slot.d) return 'שתי משמרות באותו יום';
+    let gap;
+    if(o.end<=slot.start) gap=slot.start-o.end;
+    else if(slot.end<=o.start) gap=o.start-slot.end;
+    else return 'חפיפה עם משמרת אחרת';
+    if(gap<minRest) return `רק ${Math.round(gap/6)/10} שעות מנוחה בין משמרות`;
+  }
+  const iv=others.map(k=>ctx.by[k]).filter(Boolean).concat([slot]).sort((a,b)=>a.start-b.start);
+  let prev=0,mg=0;
+  for(const x of iv){mg=Math.max(mg,x.start-prev);prev=Math.max(prev,x.end);}
+  mg=Math.max(mg,7*1440-prev);
+  if(mg<ctx.rules.weeklyRest*60) return `אין ${ctx.rules.weeklyRest} שעות מנוחה רצופות בשבוע`;
+  return null;
+}
+function cost(a,ctx){
+  let c=0;
+  for(const sl of ctx.slots){
+    const arr=a[sl.key]||[];
+    if(arr.length<sl.req) c+=(sl.req-arr.length)*1000;
+    if(ctx.rules.needLead&&ctx.anyLead&&arr.length>0&&!slotHasLead(arr,ctx)) c+=150;
+  }
+  const nights=[],wk=[];
+  for(const e of ctx.emps){
+    const ks=keysOf(a,e.id,ctx);const n=ks.length;
+    if(n<e.min) c+=(e.min-n)*80;
+    c+=Math.pow(n-ctx.target[e.id],2)*6;
+    let pref=0,ni=0,we=0;const list=[];
+    for(const k of ks){const sl=ctx.by[k];if(availOf(ctx.w,e.id,k)==='pref')pref++;if(sl.s==='n')ni++;if(sl.d>=5)we++;list.push(sl);}
+    c-=pref*25;
+    for(const sl of list){const ab=absOn(ctx,e.id,sl.d);if(ab&&ab.status==='pending')c+=60;}
+    if(e.allowed.n&&!e.minor) nights.push(ni);
+    wk.push(we);
+    list.sort((x,y)=>x.d-y.d);
+    for(let i=1;i<list.length;i++) if(list[i].d===list[i-1].d+1&&list[i].s!==list[i-1].s) c+=8;
+  }
+  const vari=arr=>{if(!arr.length)return 0;const m=arr.reduce((x,y)=>x+y,0)/arr.length;return arr.reduce((x,y)=>x+(y-m)*(y-m),0);};
+  return c+vari(nights)*15+vari(wk)*15;
+}
+
+/* ---------- scheduler: greedy start + local search, several restarts ---------- */
+function greedy(ctx){
+  const a={};
+  for(const sl of ctx.slots) a[sl.key]=(ctx.w.locked[sl.key]||[]).filter(id=>ctx.empById[id]&&(ctx.w.assign[sl.key]||[]).includes(id));
+  const elig=sl=>ctx.emps.filter(e=>e.allowed[sl.s]&&!(e.minor&&sl.s==='n')&&!onRest(e,sl)&&availOf(ctx.w,e.id,sl.key)!=='no').length;
+  const order=ctx.slots.map(sl=>({sl,r:elig(sl)/sl.req+Math.random()*0.4})).sort((x,y)=>x.r-y.r).map(x=>x.sl);
+  for(const sl of order){
+    while(a[sl.key].length<sl.req){
+      let best=null,bs=Infinity;
+      for(const e of ctx.emps){
+        if(a[sl.key].includes(e.id)) continue;
+        const ks=keysOf(a,e.id,ctx);
+        if(violation(e,sl,ks,ctx)) continue;
+        let s=ks.length*12+(ks.length/e.max)*25;
+        if(ks.length<e.min) s-=40;
+        if(availOf(ctx.w,e.id,sl.key)==='pref') s-=35;
+        {const ab=absOn(ctx,e.id,sl.d);if(ab&&ab.status==='pending')s+=60;}
+        if(ctx.rules.needLead&&e.lead&&!slotHasLead(a[sl.key],ctx)) s-=60;
+        if(sl.s==='n') s+=ks.filter(k=>ctx.by[k].s==='n').length*15;
+        if(sl.d>=5) s+=ks.filter(k=>ctx.by[k].d>=5).length*15;
+        s+=Math.random()*10;
+        if(s<bs){bs=s;best=e;}
+      }
+      if(!best) break;
+      a[sl.key].push(best.id);
+    }
+  }
+  return a;
+}
+function search(a,ctx,iters){
+  const sl=ctx.slots;if(!sl.length||!ctx.emps.length) return a;
+  let cur=cost(a,ctx);
+  const locked=k=>ctx.w.locked[k]||[];
+  const rnd=arr=>arr[Math.floor(Math.random()*arr.length)];
+  for(let i=0;i<iters;i++){
+    if(Math.random()<0.6){
+      const s=rnd(sl);const arr=a[s.key];
+      const free=arr.filter(id=>!locked(s.key).includes(id));
+      let out=null;
+      if(!(arr.length<s.req&&(Math.random()<0.6||!free.length))){if(!free.length)continue;out=rnd(free);}
+      const inn=rnd(ctx.emps);if(arr.includes(inn.id))continue;
+      if(out) arr.splice(arr.indexOf(out),1);
+      if(violation(inn,s,keysOf(a,inn.id,ctx),ctx)){if(out)arr.push(out);continue;}
+      arr.push(inn.id);
+      const nc=cost(a,ctx);
+      if(nc<=cur) cur=nc; else {arr.splice(arr.indexOf(inn.id),1);if(out)arr.push(out);}
+    }else{
+      const s1=rnd(sl),s2=rnd(sl);if(s1===s2)continue;
+      const A1=a[s1.key],A2=a[s2.key];
+      const f1=A1.filter(id=>!locked(s1.key).includes(id)),f2=A2.filter(id=>!locked(s2.key).includes(id));
+      if(!f1.length||!f2.length)continue;
+      const x=rnd(f1),y=rnd(f2);
+      if(x===y||A2.includes(x)||A1.includes(y))continue;
+      A1.splice(A1.indexOf(x),1);A2.splice(A2.indexOf(y),1);
+      let ok=!violation(ctx.empById[x],s2,keysOf(a,x,ctx),ctx);
+      if(ok){A2.push(x);ok=!violation(ctx.empById[y],s1,keysOf(a,y,ctx),ctx);if(ok)A1.push(y);else A2.splice(A2.indexOf(x),1);}
+      if(ok){const nc=cost(a,ctx);if(nc<=cur){cur=nc;continue;}A1.splice(A1.indexOf(y),1);A2.splice(A2.indexOf(x),1);}
+      A1.push(x);A2.push(y);
+    }
+  }
+  return a;
+}
+function autoSchedule(){
+  const ctx=buildCtx();let best=null,bc=Infinity;
+  for(let r=0;r<8;r++){const a=search(greedy(ctx),ctx,2500);const c=cost(a,ctx);if(c<bc){bc=c;best=a;}}
+  const w=ctx.w;const keep={};
+  for(const k in w.assign){if(!ctx.by[k])keep[k]=w.assign[k];}
+  w.assign=Object.assign(keep,best||{});
+}
+
+/* ---------- analysis ---------- */
+function analyze(){
+  const ctx=buildCtx();const a=ctx.w.assign;const issues=[];const vmap={};let filled=0,total=0;
+  const started=ctx.slots.some(sl=>(a[sl.key]||[]).length);
+  for(const sl of ctx.slots){
+    const arr=(a[sl.key]||[]).filter(id=>ctx.empById[id]);
+    total+=sl.req;filled+=Math.min(arr.length,sl.req);
+    if(arr.length<sl.req) issues.push({lvl:'bad',text:`${SH[sl.s].name}, יום ${DAYS[sl.d]}: חסרים ${sl.req-arr.length} עובדים`,key:sl.key});
+    if(ctx.rules.needLead&&ctx.anyLead&&arr.length&&!slotHasLead(arr,ctx)) issues.push({lvl:'warn',text:`${SH[sl.s].name}, יום ${DAYS[sl.d]}: אין אחראי/ת משמרת`,key:sl.key});
+  }
+  const stats=[];
+  for(const e of ctx.emps){
+    const ks=keysOf(a,e.id,ctx);const seen=new Set();
+    for(const k of ks){
+      const v=violation(e,ctx.by[k],ks.filter(x=>x!==k),ctx);
+      if(v){vmap[k+'|'+e.id]=v;if(!seen.has(v)){seen.add(v);issues.push({lvl:'bad',text:`${e.name}: ${v}`,key:k});}}
+    }
+    if(started&&ks.length<e.min) issues.push({lvl:'warn',text:`${e.name}: ${ks.length} משמרות, פחות מהמינימום (${e.min})`});
+    const prefs=Object.entries(ctx.w.avail[e.id]||{}).filter(([k,v])=>v==='pref'&&ctx.by[k]);
+    stats.push({e,n:ks.length,night:ks.filter(k=>ctx.by[k].s==='n').length,we:ks.filter(k=>ctx.by[k].d>=5).length,pref:prefs.length,got:prefs.filter(([k])=>ks.includes(k)).length});
+  }
+  for(const a of S.absences){
+    if(a.type!=='vacation'||a.status!=='pending'||!ctx.empById[a.empId])continue;
+    if(a.to<S.weekStart||a.from>addDays(S.weekStart,6))continue;
+    issues.push({lvl:'warn',text:`${ctx.empById[a.empId].name} ביקש/ה חופשה ב-${rangeTxt(a)}, ממתין לאישור`,tab:'absences'});
+  }
+  issues.sort((x,y)=>(x.lvl==='bad'?0:1)-(y.lvl==='bad'?0:1));
+  return {ctx,issues,stats,filled,total,vmap,started};
+}
+
+/* ---------- views ---------- */
+function renderSchedule(){
+  const {ctx,issues,stats,filled,total,vmap,started}=analyze();const w=ctx.w;const types=activeTypes();
+  if(UI.viewAs!=='manager'&&!ctx.empById[UI.viewAs]) UI.viewAs='manager';
+  const mgr=UI.viewAs==='manager';const me=mgr?null:UI.viewAs;
+  const ch=Object.keys(w.changed).length;
+  let h='';
+  if(mgr){
+    h+='<div class="toolbar">';
+    h+=`<button class="btn primary" data-act="auto">שבץ אוטומטית</button>`;
+    h+=`<button class="btn" data-act="clear" ${started?'':'disabled'}>נקה שיבוצים</button>`;
+    h+=w.status==='draft'?`<button class="btn" data-act="publish" ${started?'':'disabled'}>פרסם לעובדים</button>`:ch?`<button class="btn" data-act="publish">פרסם עדכון (${ch})</button>`:`<button class="btn" disabled>פורסם</button>`;
+    h+=`<button class="btn ghost" data-act="print">הדפס</button>`;
+    h+='</div>';
+  }
+
+  if(me&&w.status==='draft'){
+    return h+`<section class="mine"><h2>המשמרות של ${esc(ctx.empById[me].name)}</h2><p class="note" style="margin:0">הסידור לשבוע הזה עוד לא פורסם. תתקבל התראה ברגע שהמנהל יפרסם אותו.</p></section>`;
+  }
+  if(me){
+    const e=ctx.empById[me];
+    const ks=keysOf(w.assign,me,ctx).sort((x,y)=>ctx.by[x].start-ctx.by[y].start);
+    h+=`<section class="mine"><h2>המשמרות של ${esc(e.name)} השבוע</h2><ul>${ks.map(k=>{const sl=ctx.by[k];const c=S.days[sl.d][sl.s];return `<li><span class="dot ${sl.s}"></span>יום ${DAYS[sl.d]} ${dayDate(sl.d)}, ${SH[sl.s].name}, ${c.start}–${c.end}</li>`;}).join('')||'<li class="muted">אין משמרות השבוע</li>'}</ul>${(()=>{const mine=S.absences.filter(a=>a.empId===me&&a.status!=='rejected'&&a.to>=S.weekStart&&a.from<=addDays(S.weekStart,6));return mine.length?`<p class="hint" style="margin-top:10px">${mine.map(a=>`${ABS[a.type]} ${rangeTxt(a)}${a.status==='pending'?' (ממתינה לאישור)':''}`).join(', ')}</p>`:'';})()}</section>`;
+  }else{
+    if(!total) h+=`<div class="start-hint"><p>אין משמרות פתוחות השבוע. אפשר לפתוח ימים ולהגדיר משמרות ב<button class="link" data-tab="settings">הגדרות הסניף</button>.</p></div>`;
+    else if(!started) h+=`<div class="start-hint"><p>עוד לא נבנה סידור לשבוע הזה. לחצו על <strong>שבץ אוטומטית</strong> כדי לקבל טיוטה לפי האילוצים, ואז אפשר לתקן כל משמרת בלחיצה עליה.</p></div>`;
+    else h+=`<p class="summary"><span><strong>${filled}/${total}</strong> מקומות מאוישים</span><span>${issues.length?(issues.length===1?'פריט אחד לבדיקה':`${issues.length} פריטים לבדיקה`):'אין בעיות פתוחות'}</span></p>`;
+  }
+
+  let g=`<div class="grid-wrap"><table class="grid${me?' dimmed':''}"><thead><tr><th class="rowh"><span class="muted" style="font-weight:400;font-size:13px">משמרת</span></th>`;
+  for(let d=0;d<7;d++){
+    g+=`<th${w.closed[d]?' class="isclosed"':''}><div class="dname">${DAYS[d]}</div><div class="ddate">${dayDate(d)}</div>${mgr?`<button class="link daytoggle" data-act="toggleDay" data-d="${d}">${w.closed[d]?'פתח את היום':'סגור את היום'}</button>`:''}</th>`;
+  }
+  g+='</tr></thead><tbody>';
+  for(const s of types){
+    g+=`<tr><th class="rowh ${s}" scope="row">${SH[s].name}</th>`;
+    for(let d=0;d<7;d++){
+      const key=`${d}-${s}`;
+      if(w.closed[d]){g+=`<td class="cell closed"><div class="closedlbl">סגור</div></td>`;continue;}
+      const req=slotReq(w,d,s);
+      if(req<=0){g+=`<td class="cell off">${mgr?`<button class="offbtn" data-act="openCell" data-key="${key}">אין משמרת<span>הוספה</span></button>`:'<div class="closedlbl">—</div>'}</td>`;continue;}
+      const c=S.days[d][s];const tmpl=c.req;
+      const arr=(w.assign[key]||[]).filter(id=>ctx.empById[id]);const L=w.locked[key]||[];
+      const chips=arr.map(id=>{const e=ctx.empById[id];const bad=vmap[key+'|'+id];return `<span class="chip${bad?' bad':''}${id===me?' me':''}"${bad?` title="${esc(bad)}"`:''}>${L.includes(id)?LOCK:''}${esc(e.name)}${e.lead?'<i class="lead-dot" title="אחראי/ת משמרת"></i>':''}</span>`;}).join('');
+      const miss=Math.max(0,req-arr.length);
+      const ghosts=mgr&&started?Array.from({length:miss},()=>'<span class="chip ghost">חסר</span>').join(''):'';
+      const ovr=req>tmpl?'<span class="ovr">תגבור</span>':req<tmpl?'<span class="ovr">צמצום</span>':'';
+      const inner=`<span class="cellhead"><span>${c.start}–${c.end}</span>${ovr}<span class="cnt ${miss?'short':'full'}">${arr.length}/${req}</span></span><span class="chips">${chips}${ghosts}</span>`;
+      g+=`<td class="cell ${s}">${mgr?`<button class="cellbtn" data-act="openCell" data-key="${key}" aria-label="${SH[s].name}, יום ${DAYS[d]}: ${arr.length} מתוך ${req}">${inner}</button>`:`<div class="cellbtn static">${inner}</div>`}</td>`;
+    }
+    g+='</tr>';
+  }
+  g+='</tbody></table></div>';
+  h+=g;
+
+  if(mgr){
+    const showN=types.includes('n');
+    h+=`<div class="panels"><section class="panel"><h2>בעיות לבדיקה</h2>${!started?'<p class="empty">יופיעו כאן אחרי בניית הסידור.</p>':issues.length?`<ul class="issues">${issues.map(i=>`<li class="${i.lvl}">${i.key?`<button class="link" data-act="openCell" data-key="${i.key}">${esc(i.text)}</button>`:i.tab?`<button class="link" data-tab="${i.tab}">${esc(i.text)}</button>`:esc(i.text)}</li>`).join('')}</ul>`:'<p class="empty">אין בעיות. אפשר לפרסם.</p>'}</section>`;
+    h+=`<section class="panel"><h2>חלוקת המשמרות</h2><div class="tbl-wrap"><table class="stats"><thead><tr><th>עובד/ת</th><th>משמרות (יעד)</th>${showN?'<th>לילות</th>':''}<th>שישי ושבת</th><th>העדפות שכובדו</th></tr></thead><tbody>${stats.map(r=>`<tr><td>${esc(r.e.name)}</td><td class="num${started&&r.n<r.e.min?' under':''}">${r.n} <span class="muted">(${r.e.min}–${r.e.max})</span></td>${showN?`<td class="num">${r.night}</td>`:''}<td class="num">${r.we}</td><td class="num">${r.pref?`${r.got} מתוך ${r.pref}`:'—'}</td></tr>`).join('')}</tbody></table></div></section></div>`;
+  }
+  return h;
+}
+
+function renderDlg(){
+  const key=UI.cellKey;if(!key) return;
+  const [ds,s]=key.split('-');const d=+ds;
+  const ctx=buildCtx();const w=ctx.w;const req=slotReq(w,d,s);const c=S.days[d][s];const tmpl=c.req;
+  let h=`<div class="dlg"><h2>${SH[s].name}, יום ${DAYS[d]} ${dayDate(d)}</h2><p class="hint" style="margin-top:2px">${c.start}–${c.end}</p>`;
+  if(w.closed[d]){
+    h+=`<p>היום הזה סגור השבוע.</p><button class="btn" data-act="openDay">פתח את היום</button>`;
+  }else{
+    h+=`<div class="stepper"><span>עובדים נדרשים השבוע</span><button class="btn" data-act="req" data-delta="-1" aria-label="פחות">−</button><output>${req}</output><button class="btn" data-act="req" data-delta="1" aria-label="יותר">+</button></div>`;
+    h+=`<p class="hint">${req!==tmpl?`שונה לשבוע הזה בלבד. בתבנית הקבועה: ${tmpl}. <button class="link" data-act="reqReset">החזר לתבנית</button>`:'שינוי כאן חל על השבוע הזה בלבד, למשל תגבור לערב חג או למבצע.'}</p>`;
+    if(req>0){
+      const sl=ctx.by[key]||makeSlot(d,s,req);
+      const arr=(w.assign[key]||[]).filter(id=>ctx.empById[id]);const L=w.locked[key]||[];const full=arr.length>=req;
+      const inS=[],ok=[],no=[];
+      for(const e of ctx.emps){
+        const ks=keysOf(w.assign,e.id,ctx).filter(k=>k!==key);
+        const v=violation(e,sl,ks,ctx);const pref=availOf(w,e.id,key)==='pref';
+        const tags=(e.lead?'<span class="tag">אחראי/ת</span>':'')+(pref?'<span class="tag ok">מעדיף/ה</span>':'')+(e.minor?'<span class="tag">קטין/ה</span>':'')+((ab=>ab&&ab.status==='pending'?'<span class="tag warn">ביקש/ה חופשה</span>':'')(absOn(ctx,e.id,d)));
+        if(arr.includes(e.id)) inS.push({e,v,tags,lk:L.includes(e.id)});
+        else if(!v) ok.push({e,pref,n:ks.length,tags});
+        else no.push({e,v,tags});
+      }
+      ok.sort((x,y)=>(y.pref-x.pref)||(x.n-y.n));
+      h+=`<h3>משובצים (${arr.length} מתוך ${req})</h3><ul class="rows">${inS.map(r=>`<li><div><strong>${esc(r.e.name)}</strong>${r.tags}${r.v?`<div class="reason bad">${esc(r.v)}</div>`:''}${r.lk?'<div class="reason">נעול: השיבוץ האוטומטי לא יזיז אותו</div>':''}</div><div class="acts"><button class="btn sm ghost" data-act="lock" data-emp="${r.e.id}" aria-pressed="${r.lk}">${r.lk?'בטל נעילה':'נעל'}</button><button class="btn sm ghost" data-act="unassign" data-emp="${r.e.id}">הסר</button></div></li>`).join('')||'<li class="muted">אין עדיין</li>'}</ul>`;
+      h+=`<h3>זמינים</h3><ul class="rows">${ok.map(r=>`<li><div><strong>${esc(r.e.name)}</strong>${r.tags}<div class="reason">${r.n} משמרות השבוע</div></div><div class="acts"><button class="btn sm" data-act="assign" data-emp="${r.e.id}" ${full?'disabled title="המשמרת מלאה"':''}>שבץ</button></div></li>`).join('')||'<li class="muted">אין עובדים זמינים שעומדים בכללים</li>'}</ul>`;
+      if(no.length) h+=`<h3>לא מתאימים למשמרת הזו</h3><ul class="rows">${no.map(r=>`<li><div><strong>${esc(r.e.name)}</strong>${r.tags}<div class="reason bad">${esc(r.v)}</div></div><div class="acts"><button class="btn sm ghost" data-act="assign" data-emp="${r.e.id}" ${full?'disabled':''}>שבץ בכל זאת</button></div></li>`).join('')}</ul>`;
+    }
+  }
+  h+=`<div class="dlg-foot"><button class="btn primary" data-act="closeDlg">סיום</button></div></div>`;
+  $('#dlg').innerHTML=h;
+}
+
+function renderAvail(){
+  const w=W();const types=activeTypes();const ctx=buildCtx();const act=ctx.emps;
+  if(!act.length) return '<p class="intro">אין עובדים פעילים. מוסיפים עובדים בלשונית "עובדים".</p>';
+  if(!act.find(e=>e.id===UI.availEmp)) UI.availEmp=act[0].id;
+  const meA=UI.viewAs!=='manager'?UI.viewAs:null;if(meA)UI.availEmp=meA;
+  const emp=act.find(e=>e.id===UI.availEmp);const av=w.avail[emp.id]||{};
+  let h=meA?`<p class="intro">סמנו לאילו משמרות אתם יכולים להגיע בשבוע ${weekLabel()}. לחיצה על משמרת עוברת בין זמין, מעדיף ולא יכול. המנהל בונה את הסידור לפי הסימונים.</p>`:`<p class="intro">כאן רואים את האילוצים שהעובדים סימנו לשבוע. לחיצה על משמרת עוברת בין זמין, מעדיף ולא יכול, כך שהמנהל יכול גם לעדכן בשם עובד. כדי לראות איך עובד ממלא את זה, בחרו אותו ב"צופה בתור".</p>`;
+  if(!meA) h+=`<div class="emp-pills">${act.map(e=>{const n=Object.keys(w.avail[e.id]||{}).length;return `<button class="emp-pill" data-act="pickEmp" data-id="${e.id}" aria-pressed="${e.id===emp.id}">${esc(e.name)}${n?`<small>${n} סימונים</small>`:''}</button>`;}).join('')}</div>`;
+  h+=`<div class="card"><div class="inline" style="justify-content:space-between"><h2 style="margin:0">${meA?'האילוצים שלי':esc(emp.name)}</h2><button class="btn sm ghost" data-act="clearAvail" data-emp="${emp.id}">סמן הכול כזמין</button></div><div class="tbl-wrap" style="margin-top:10px"><table class="agrid"><thead><tr><th></th>${DAYS.map((n,i)=>`<th>${n}<div class="ddate">${dayDate(i)}</div></th>`).join('')}</tr></thead><tbody>`;
+  for(const s of types){
+    h+=`<tr><th class="arow">${SH[s].name}</th>`;
+    for(let d=0;d<7;d++){
+      const k=`${d}-${s}`;
+      if(w.closed[d]||slotReq(w,d,s)<=0) h+='<td><span class="av na">אין משמרת</span></td>';
+      else if((ab=>ab&&ab.status==='approved')(absOn(ctx,emp.id,d))) h+=`<td><span class="av na">${absOn(ctx,emp.id,d).type==='sick'?'במחלה':'בחופשה'}</span></td>`;
+      else if(onRest(emp,makeSlot(d,s,1))) h+='<td><span class="av na">יום מנוחה</span></td>';
+      else if(!emp.allowed[s]||(emp.minor&&s==='n')) h+='<td><span class="av na">לא רלוונטי</span></td>';
+      else{const st=av[k]||'ok';h+=`<td><button class="av ${st}" data-act="cycle" data-emp="${emp.id}" data-key="${k}" aria-label="${SH[s].name} יום ${DAYS[d]}: ${LBL[st]}">${LBL[st]}</button></td>`;}
+    }
+    h+='</tr>';
+  }
+  return h+'</tbody></table></div></div>';
+}
+
+function renderEmps(){
+  const types=activeTypes();
+  let h=`<p class="intro">לכל עובד מגדירים כמה משמרות בשבוע הוא אמור לקבל, לאילו משמרות הוא מתאים ואם הוא אחראי משמרת. יום מנוחה קבוע (למשל ראשון לעובד נוצרי או שישי לעובד מוסלמי) חוסם שיבוץ באותו יום בכל שבוע, כולל משמרת לילה שנמשכת לתוכו. עובד קטין משובץ רק לבוקר. עובד לא פעיל (עזב, בחל״ת, בחופשת לידה) לא משובץ ולא מופיע ברשימות, אבל הנתונים שלו נשמרים.</p><div class="card"><p class="count-note">${S.emps.filter(isActive).length} פעילים${(n=>n?(n===1?', 1 לא פעיל':`, ${n} לא פעילים`):'')(S.emps.filter(e=>!isActive(e)).length)}</p><div class="tbl-wrap"><table class="form-table"><thead><tr><th>פעיל/ה</th><th>שם</th><th>מינימום בשבוע</th><th>מקסימום בשבוע</th>${types.map(s=>`<th>${SH[s].name}</th>`).join('')}<th>יום מנוחה קבוע</th><th>אחראי/ת משמרת</th><th>קטין/ה</th><th></th></tr></thead><tbody>`;
+  for(const e of [...S.emps.filter(isActive),...S.emps.filter(e=>!isActive(e))]){
+    h+=`<tr${isActive(e)?'':' class="inactive"'}><td><input type="checkbox" ${isActive(e)?'checked':''} data-field="active" data-id="${e.id}" aria-label="פעיל"></td><td><input type="text" value="${esc(e.name)}" data-field="name" data-id="${e.id}" aria-label="שם"></td>
+      <td><input type="number" min="0" max="7" value="${e.min}" data-field="min" data-id="${e.id}" aria-label="מינימום משמרות"></td>
+      <td><input type="number" min="0" max="7" value="${e.max}" data-field="max" data-id="${e.id}" aria-label="מקסימום משמרות"></td>
+      ${types.map(s=>`<td><input type="checkbox" ${e.allowed[s]?'checked':''} ${s!=='m'&&e.minor?'disabled':''} data-field="allow-${s}" data-id="${e.id}" aria-label="${SH[s].name}"></td>`).join('')}
+      <td><select data-field="restDay" data-id="${e.id}" aria-label="יום מנוחה קבוע"><option value="">ללא</option>${DAYS.map((n,i)=>`<option value="${i}" ${String(e.restDay)===String(i)?'selected':''}>${n}</option>`).join('')}</select></td>
+      <td><input type="checkbox" ${e.lead?'checked':''} data-field="lead" data-id="${e.id}" aria-label="אחראי משמרת"></td>
+      <td><input type="checkbox" ${e.minor?'checked':''} data-field="minor" data-id="${e.id}" aria-label="קטין"></td>
+      <td><button class="btn sm ghost" data-act="delEmp" data-id="${e.id}">מחק</button></td></tr>`;
+  }
+  return h+`</tbody></table></div><div class="inline" style="margin-top:14px;gap:8px"><input type="text" id="newEmp" placeholder="שם העובד/ת" aria-label="שם עובד חדש"><button class="btn primary" data-act="addEmp">הוסף עובד/ת</button></div></div>`;
+}
+
+function absRow(a,me){
+  const e=S.emps.find(x=>x.id===a.empId);if(!e)return '';
+  const sick=a.type==='sick';
+  let status='';
+  if(!sick) status=a.status==='pending'?'<div class="reason warn">ממתינה לאישור</div>':a.status==='approved'?'<div class="reason ok">אושרה</div>':'<div class="reason bad">נדחתה</div>';
+  else status=!a.file?'<div class="reason warn">לא צורף אישור מחלה</div>':a.fileCheck==='ok'?'<div class="reason ok">האישור נבדק ותקין</div>':a.fileCheck==='bad'?'<div class="reason bad">האישור סומן כלא תקין</div>':'<div class="reason warn">אישור צורף, ממתין לבדיקה</div>';
+  let acts='';
+  if(!me&&!sick&&a.status==='pending') acts+=`<button class="btn sm primary" data-act="absApprove" data-id="${a.id}">אשר</button><button class="btn sm ghost" data-act="absReject" data-id="${a.id}">דחה</button>`;
+  if(a.file) acts+=`<button class="btn sm" data-act="absView" data-id="${a.id}">${sick?'צפה באישור':'צפה בקובץ'}</button>`;
+  else if(sick) acts+=`<label class="btn sm filebtn">צרף אישור<input type="file" accept="image/*,application/pdf" data-absfile="${a.id}" aria-label="צרף אישור מחלה"></label>`;
+  if(!me) acts+=`<button class="btn sm ghost" data-act="absDelete" data-id="${a.id}">מחק</button>`;
+  else if(!sick&&a.status==='pending') acts+=`<button class="btn sm ghost" data-act="absDelete" data-id="${a.id}">בטל בקשה</button>`;
+  return `<li><div>${me?'':`<strong>${esc(e.name)}</strong>`}<span class="tag ${sick?'sick':'vac'}">${ABS[a.type]}</span><div class="reason">${rangeTxt(a)} · ${daysIn(a)} ${daysIn(a)===1?'יום':'ימים'}${a.note?` · ${esc(a.note)}`:''}</div>${status}</div><div class="acts">${acts}</div></li>`;
+}
+function renderAbsences(){
+  const act=S.emps.filter(isActive);const today=isoOf(new Date());
+  const me=UI.viewAs!=='manager'?UI.viewAs:null;const row=a=>absRow(a,me);
+  const sorted=[...S.absences].filter(a=>!me||a.empId===me).sort((x,y)=>x.from<y.from?-1:1);
+  const pending=sorted.filter(a=>a.type==='vacation'&&a.status==='pending');
+  const current=sorted.filter(a=>!(a.type==='vacation'&&a.status==='pending')&&a.status!=='rejected'&&a.to>=today);
+  const past=sorted.filter(a=>a.status==='rejected'||(a.to<today&&!(a.type==='vacation'&&a.status==='pending'))).reverse();
+  if(me){
+    let h=`<p class="intro">כאן מבקשים חופשה ומדווחים על מחלה. בקשת חופשה נשלחת למנהל לאישור. על מחלה מדווחים מיד, ומצרפים אישור מחלה כשמקבלים אותו.</p>`;
+    h+=`<div class="card"><h2>בקשה חדשה</h2><input type="hidden" id="absEmp" value="${me}"><div class="absform">
+    <label class="field"><span>סוג</span><select id="absType"><option value="vacation">חופשה</option><option value="sick">מחלה</option></select></label>
+    <label class="field"><span>מתאריך</span><input type="date" id="absFrom" value="${S.weekStart}"></label>
+    <label class="field"><span>עד תאריך</span><input type="date" id="absTo" value="${S.weekStart}"></label>
+    <label class="field wide"><span>הערה למנהל (לא חובה)</span><input type="text" id="absNote"></label>
+    <label class="field wide"><span>אישור מחלה או קובץ אחר (תמונה או PDF, לא חובה)</span><input type="file" id="absFile" accept="image/*,application/pdf"></label>
+    </div><button class="btn primary" data-act="absAdd">שלח למנהל</button></div>`;
+    const open=sorted.filter(a=>a.status!=='rejected'&&a.to>=today);
+    const old=sorted.filter(a=>a.status==='rejected'||a.to<today).reverse();
+    h+=`<div class="card"><h2>הבקשות שלי</h2>${open.length?`<ul class="rows">${open.map(row).join('')}</ul>`:'<p class="empty">אין בקשות פתוחות.</p>'}</div>`;
+    if(old.length) h+=`<div class="card"><h2>היסטוריה</h2><ul class="rows">${old.map(row).join('')}</ul></div>`;
+    return h;
+  }
+  let h=`<p class="intro">חופשה צריכה אישור מנהל; עד שהיא מאושרת השיבוץ האוטומטי רק משתדל לא לשבץ את העובד. מחלה נרשמת מיד ומוציאה את העובד מהסידור, והמנהל בודק את אישור המחלה שצורף. המנהל יכול גם להזין בקשה בשם עובד. כדי לראות איך עובד שולח בקשה, בחרו אותו ב"צופה בתור".</p>`;
+  h+=`<div class="card"><h2>בקשה חדשה</h2><div class="absform">
+    <label class="field"><span>עובד/ת</span><select id="absEmp">${act.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select></label>
+    <label class="field"><span>סוג</span><select id="absType"><option value="vacation">חופשה</option><option value="sick">מחלה</option></select></label>
+    <label class="field"><span>מתאריך</span><input type="date" id="absFrom" value="${S.weekStart}"></label>
+    <label class="field"><span>עד תאריך</span><input type="date" id="absTo" value="${S.weekStart}"></label>
+    <label class="field wide"><span>הערה (לא חובה)</span><input type="text" id="absNote"></label>
+    <label class="field wide"><span>קובץ מצורף, למשל אישור מחלה (תמונה או PDF, לא חובה)</span><input type="file" id="absFile" accept="image/*,application/pdf"></label>
+  </div><button class="btn primary" data-act="absAdd">שמור בקשה</button></div>`;
+  h+=`<div class="card"><h2>ממתינות לאישור</h2>${pending.length?`<ul class="rows">${pending.map(row).join('')}</ul>`:'<p class="empty">אין בקשות ממתינות.</p>'}</div>`;
+  h+=`<div class="card"><h2>היעדרויות קרובות ונוכחיות</h2>${current.length?`<ul class="rows">${current.map(row).join('')}</ul>`:'<p class="empty">אין היעדרויות מתוכננות.</p>'}</div>`;
+  if(past.length) h+=`<div class="card"><h2>היסטוריה</h2><ul class="rows">${past.map(row).join('')}</ul></div>`;
+  return h;
+}
+
+function renderSettings(){
+  const b=S.branch;const types=activeTypes();
+  let h=`<div class="card"><h2>פרטי הסניף</h2><label class="field"><span>שם הסניף</span><input type="text" value="${esc(b.name)}" data-set="name" style="max-width:320px"></label>
+    <div class="field"><span>שיטת משמרות</span><div class="inline"><label class="inline" style="gap:6px"><input type="radio" name="model" value="2" data-set="model" ${b.model===2?'checked':''}> בוקר וערב</label><label class="inline" style="gap:6px"><input type="radio" name="model" value="3" data-set="model" ${b.model===3?'checked':''}> בוקר, ערב ולילה</label></div></div></div>`;
+  h+=`<div class="card"><h2>שעות ומספר עובדים לפי יום</h2><p class="intro">זו התבנית הקבועה של הסניף. כדי לשנות שבוע מסוים, למשל ערב חג או מבצע, לוחצים על המשמרת בלוח הסידור.</p><div class="tbl-wrap"><table class="form-table"><thead><tr><th>יום</th><th>פתוח</th>${types.map(s=>`<th>${SH[s].name}</th>`).join('')}</tr></thead><tbody>`;
+  for(let d=0;d<7;d++){
+    const open=!b.closedDays.includes(d);
+    h+=`<tr><th>${DAYS[d]}</th><td><input type="checkbox" ${open?'checked':''} data-open="${d}" aria-label="יום ${DAYS[d]} פתוח"></td>`;
+    for(const s of types){const c=S.days[d][s];h+=`<td><div class="tcell"><label class="inline" style="gap:6px">עובדים <input type="number" min="0" max="20" value="${c.req}" data-tmpl="${d}-${s}-req"></label><div class="times"><input type="time" value="${c.start}" data-tmpl="${d}-${s}-start" aria-label="שעת התחלה"><span>–</span><input type="time" value="${c.end}" data-tmpl="${d}-${s}-end" aria-label="שעת סיום"></div></div></td>`;}
+    h+='</tr>';
+  }
+  h+=`</tbody></table></div><p class="hint">0 עובדים פירושו שאין משמרת כזו באותו יום.</p></div>`;
+  h+=`<div class="card"><h2>כללי שיבוץ</h2><div class="inline"><label class="field"><span>מנוחה מינימלית בין משמרות (שעות)</span><input type="number" min="0" max="24" value="${b.rules.minRest}" data-set="minRest" style="width:90px"></label><label class="field"><span>מנוחה שבועית רצופה (שעות)</span><input type="number" min="0" max="72" value="${b.rules.weeklyRest}" data-set="weeklyRest" style="width:90px"></label></div><label class="inline" style="gap:8px"><input type="checkbox" ${b.rules.needLead?'checked':''} data-set="needLead"> בכל משמרת צריך אחראי/ת משמרת</label><p class="hint">עובד לא משובץ ליותר ממשמרת אחת ביום. ערכי ברירת המחדל מבוססים על חוק שעות עבודה ומנוחה, ויש לאמת אותם לפני שימוש אמיתי.</p></div>`;
+  h+=`<div class="card"><h2>נתוני הדגמה</h2><p class="intro">כל הנתונים נשמרים רק בדפדפן הזה.</p><button class="btn ghost" data-act="reset">איפוס לנתוני ההדגמה</button></div>`;
+  return h;
+}
+
+function render(){
+  const w=W();
+  const actE=S.emps.filter(isActive);
+  if(UI.viewAs!=='manager'&&!actE.some(e=>e.id===UI.viewAs)) UI.viewAs='manager';
+  const mgr=UI.viewAs==='manager';
+  if(!mgr&&(UI.tab==='emps'||UI.tab==='settings')) UI.tab='schedule';
+  document.body.classList.toggle('emp-mode',!mgr);
+  $('#viewAs').innerHTML=`<option value="manager">מנהל/ת</option>${actE.map(e=>`<option value="${e.id}" ${e.id===UI.viewAs?'selected':''}>עובד/ת: ${esc(e.name)}</option>`).join('')}`;
+  $('[data-tab="emps"]').hidden=!mgr;$('[data-tab="settings"]').hidden=!mgr;
+  $('[data-tab="schedule"]').textContent=mgr?'סידור השבוע':'המשמרות שלי';
+  $('[data-tab="avail"]').textContent=mgr?'אילוצים':'האילוצים שלי';
+  $('#status').hidden=!mgr;
+  $('#branchName').textContent=S.branch.name;
+  $('#weekLabel').textContent=weekLabel();
+  const ch=Object.keys(w.changed).length;const st=$('#status');
+  st.className='pill'+(w.status==='draft'?'':ch?' chg':' pub');
+  st.textContent=w.status==='draft'?'טיוטה':ch?'יש שינויים שלא פורסמו':'פורסם לעובדים';
+  document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===UI.tab)));
+  const pend=S.absences.filter(a=>a.type==='vacation'&&a.status==='pending'&&S.emps.some(e=>e.id===a.empId&&isActive(e))).length;
+  $('[data-tab="absences"]').textContent=!mgr?'חופשה ומחלה':pend?`היעדרויות (${pend})`:'היעדרויות';
+  $('#view').innerHTML=UI.tab==='schedule'?renderSchedule():UI.tab==='avail'?renderAvail():UI.tab==='absences'?renderAbsences():UI.tab==='emps'?renderEmps():renderSettings();
+}
+
+let toastT;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3800);}
+
+/* ---------- actions ---------- */
+function runAuto(btn){
+  const w=W();
+  if(w.status!=='draft'&&!confirm('הסידור כבר פורסם. לבנות אותו מחדש? עובדים שהמשמרות שלהם ישתנו יקבלו עדכון בפרסום הבא.')) return;
+  btn.disabled=true;btn.textContent='בונה סידור…';
+  setTimeout(()=>{
+    const ctx=buildCtx();
+    const before={};S.emps.forEach(e=>before[e.id]=keysOf(w.assign,e.id,ctx).sort().join());
+    autoSchedule();
+    if(w.status!=='draft') S.emps.forEach(e=>{if(keysOf(w.assign,e.id,ctx).sort().join()!==before[e.id]) w.changed[e.id]=true;});
+    save();render();
+    const A=analyze();
+    toast(`הסידור נבנה: ${A.filled} מתוך ${A.total} מקומות מאוישים${A.issues.length?`, ${A.issues.length} פריטים לבדיקה`:''}.`);
+  },40);
+}
+function publish(){
+  const w=W();const ctx=buildCtx();const ch=Object.keys(w.changed).length;
+  if(w.status==='draft'){
+    const n=ctx.emps.filter(e=>keysOf(w.assign,e.id,ctx).length).length;
+    w.status='published';w.changed={};
+    toast(`הסידור פורסם. ${n} עובדים קיבלו התראה עם המשמרות שלהם.`);
+  }else{
+    w.changed={};
+    toast(`העדכון פורסם. ${ch} עובדים שהמשמרות שלהם השתנו קיבלו התראה.`);
+  }
+  save();render();
+}
+function cellAction(act,t){
+  const w=W();const key=UI.cellKey;if(!key)return;
+  const [ds,s]=key.split('-');const d=+ds;const id=t.dataset.emp;
+  w.assign[key]=w.assign[key]||[];w.locked[key]=w.locked[key]||[];
+  if(act==='assign'){if(!w.assign[key].includes(id))w.assign[key].push(id);markChanged(w,id);}
+  if(act==='unassign'){w.assign[key]=w.assign[key].filter(x=>x!==id);w.locked[key]=w.locked[key].filter(x=>x!==id);markChanged(w,id);}
+  if(act==='lock'){const L=w.locked[key];w.locked[key]=L.includes(id)?L.filter(x=>x!==id):L.concat(id);}
+  if(act==='req'){const nv=Math.max(0,Math.min(20,slotReq(w,d,s)+Number(t.dataset.delta)));if(nv===S.days[d][s].req)delete w.overrides[key];else w.overrides[key]=nv;}
+  if(act==='reqReset') delete w.overrides[key];
+  if(act==='openDay') w.closed[d]=false;
+  save();render();renderDlg();
+}
+function clearAssignments(empId,pred){
+  let n=0;
+  for(const wk in S.weeks){const w=S.weeks[wk];
+    for(let d=0;d<7;d++){if(!pred(addDays(wk,d)))continue;
+      for(const s of ['m','e','n']){const k=`${d}-${s}`;
+        if(w.assign[k]&&w.assign[k].includes(empId)){
+          w.assign[k]=w.assign[k].filter(x=>x!==empId);
+          if(w.locked[k])w.locked[k]=w.locked[k].filter(x=>x!==empId);
+          if(w.status==='published'){w.changed=w.changed||{};w.changed[empId]=true;}
+          n++;}}}}
+  return n;
+}
+const applyAbsence=a=>clearAssignments(a.empId,dt=>dt>=a.from&&dt<=a.to);
+function readAsDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+async function prepFile(file){
+  if(file.type.startsWith('image/')){
+    const src=await readAsDataURL(file);
+    const img=new Image();
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('image'));img.src=src;});
+    const sc=Math.min(1,1400/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+    const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+    return {name:file.name,type:'image/jpeg',data:c.toDataURL('image/jpeg',0.75)};
+  }
+  if(file.type==='application/pdf'){
+    if(file.size>1200000) throw new Error('big');
+    return {name:file.name,type:'application/pdf',data:await readAsDataURL(file)};
+  }
+  throw new Error('type');
+}
+function fileError(err){
+  toast(err&&err.message==='big'?'קובץ ה-PDF גדול מדי לאב-טיפוס (עד 1.2MB). אפשר לצלם את האישור כתמונה.':err&&err.message==='type'?'אפשר לצרף רק תמונה או PDF.':'לא הצלחנו לקרוא את הקובץ. נסו קובץ אחר.');
+}
+async function attachFile(a,file){
+  try{a.file=await prepFile(file);a.fileCheck=null;}catch(err){fileError(err);return false;}
+  if(!save()){a.file=null;save();toast('אין מספיק מקום בדפדפן לשמור את הקובץ. נסו קובץ קטן יותר.');return false;}
+  return true;
+}
+async function addAbsence(btn){
+  const empId=$('#absEmp')&&$('#absEmp').value;const type=$('#absType').value;
+  const from=$('#absFrom').value;const to=$('#absTo').value;const note=$('#absNote').value.trim();const file=$('#absFile').files[0];
+  if(!empId){toast('אין עובדים פעילים.');return;}
+  if(!from||!to){toast('בחרו תאריך התחלה ותאריך סיום.');return;}
+  if(to<from){toast('תאריך הסיום לפני תאריך ההתחלה.');return;}
+  const a={id:uid(),empId,type,from,to,note,status:type==='sick'?'approved':'pending',file:null,fileCheck:null};
+  btn.disabled=true;
+  if(file){try{a.file=await prepFile(file);}catch(err){fileError(err);btn.disabled=false;return;}}
+  S.absences.push(a);
+  const n=a.status==='approved'?applyAbsence(a):0;
+  if(!save()){S.absences.pop();toast('אין מספיק מקום בדפדפן לשמור את הקובץ. נסו קובץ קטן יותר.');btn.disabled=false;return;}
+  render();
+  const name=S.emps.find(e=>e.id===empId).name;
+  if(UI.viewAs!=='manager') toast(type==='sick'?`המחלה דווחה למנהל.${a.file?'':' אפשר לצרף את אישור המחלה גם מאוחר יותר.'}`:'הבקשה נשלחה למנהל לאישור.');
+  else toast(type==='sick'?`המחלה של ${name} נרשמה${n?`. ${n} שיבוצים הוסרו מהסידור וצריך להשלים אותם`:''}.`:`בקשת החופשה של ${name} נשמרה וממתינה לאישור.`);
+}
+let pdfjsP=null;
+function loadPdfJs(){
+  if(!pdfjsP) pdfjsP=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    sc.onload=()=>{const L=window.pdfjsLib;if(!L)return rej(new Error('pdf'));L.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';res(L);};
+    sc.onerror=()=>{pdfjsP=null;rej(new Error('pdf'));};document.head.appendChild(sc);});
+  return pdfjsP;
+}
+async function renderPdf(dataUrl,box){
+  try{
+    const L=await loadPdfJs();
+    const bin=atob(dataUrl.split(',')[1]);const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+    const doc=await L.getDocument({data:u8}).promise;box.innerHTML='';
+    for(let p=1;p<=Math.min(doc.numPages,5);p++){
+      const page=await doc.getPage(p);const base=page.getViewport({scale:1});
+      const scale=Math.max(1,(box.clientWidth||600)/base.width)*(window.devicePixelRatio||1);
+      const v=page.getViewport({scale});const c=document.createElement('canvas');c.width=v.width;c.height=v.height;c.className='cert';
+      box.appendChild(c);await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
+    }
+    if(doc.numPages>5)box.insertAdjacentHTML('beforeend',`<p class="hint">מוצגים 5 עמודים ראשונים מתוך ${doc.numPages}.</p>`);
+  }catch(err){
+    box.innerHTML=`<object data="${dataUrl}" type="application/pdf" class="certobj"><p class="muted">לא ניתן להציג את ה-PDF כאן, אבל הקובץ נשמר.</p></object>`;
+  }
+}
+function viewFile(id){
+  const a=S.absences.find(x=>x.id===id);if(!a||!a.file)return;
+  const e=S.emps.find(x=>x.id===a.empId);const fd=$('#fileDlg');const sick=a.type==='sick';
+  const isImg=a.file.type.startsWith('image/');
+  fd.innerHTML=`<div class="dlg"><h2>${sick?'אישור מחלה':'קובץ מצורף'}: ${esc(e?e.name:'')}</h2><p class="hint" style="margin-top:2px">${rangeTxt(a)} · ${esc(a.file.name)}</p>
+    ${isImg?`<img class="cert" src="${a.file.data}" alt="${sick?'אישור מחלה':'קובץ מצורף'} של ${esc(e?e.name:'')}">`:'<div class="pdfpages" id="pdfBox"><p class="muted">טוען את הקובץ…</p></div>'}
+    <div class="dlg-foot" style="gap:8px;flex-wrap:wrap">${sick&&UI.viewAs==='manager'?`<button class="btn" data-act="absCheck" data-v="ok" data-id="${a.id}" aria-pressed="${a.fileCheck==='ok'}">האישור תקין</button><button class="btn ghost" data-act="absCheck" data-v="bad" data-id="${a.id}" aria-pressed="${a.fileCheck==='bad'}">האישור לא תקין</button>`:''}<button class="btn primary" data-act="closeFile">סגור</button></div></div>`;
+  if(!fd.open)fd.showModal();
+  if(!isImg)renderPdf(a.file.data,$('#pdfBox'));
+}
+
+function removeEmpEverywhere(id){
+  S.absences=S.absences.filter(a=>a.empId!==id);
+  for(const k in S.weeks){const w=S.weeks[k];delete w.avail[id];if(w.changed)delete w.changed[id];
+    for(const s in w.assign)w.assign[s]=w.assign[s].filter(x=>x!==id);
+    for(const s in w.locked)w.locked[s]=w.locked[s].filter(x=>x!==id);}
+}
+function addEmp(){
+  const inp=$('#newEmp');const name=inp&&inp.value.trim();
+  if(!name){inp&&inp.focus();toast('כתבו שם כדי להוסיף עובד.');return;}
+  S.emps.push({id:uid(),name,min:2,max:5,lead:false,minor:false,allowed:{m:true,e:true,n:true}});
+  save();render();toast(`${name} נוסף/ה לרשימה.`);const n=$('#newEmp');n&&n.focus();
+}
+
+const dlg=$('#dlg');
+dlg.addEventListener('close',()=>{UI.cellKey=null;});
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+const fileDlg=$('#fileDlg');
+fileDlg.addEventListener('click',e=>{if(e.target===fileDlg)fileDlg.close();});
+
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-act],[data-tab]');if(!t||t.disabled)return;
+  if(t.dataset.tab&&!t.dataset.act){UI.tab=t.dataset.tab;render();return;}
+  const w=W();
+  switch(t.dataset.act){
+    case 'prevWeek':S.weekStart=addDays(S.weekStart,-7);ensureWeek();save();render();break;
+    case 'nextWeek':S.weekStart=addDays(S.weekStart,7);ensureWeek();save();render();break;
+    case 'auto':runAuto(t);break;
+    case 'clear':{
+      if(!confirm('לנקות את כל השיבוצים של השבוע? שיבוצים נעולים יישארו.'))return;
+      for(const k in w.assign){const L=w.locked[k]||[];w.assign[k].forEach(id=>{if(!L.includes(id))markChanged(w,id);});w.assign[k]=w.assign[k].filter(id=>L.includes(id));}
+      save();render();toast('השיבוצים נוקו. שיבוצים נעולים נשארו.');break;}
+    case 'publish':publish();break;
+    case 'print':window.print();break;
+    case 'toggleDay':{const d=t.dataset.d;w.closed[d]=!w.closed[d];save();render();break;}
+    case 'openCell':UI.cellKey=t.dataset.key;renderDlg();if(!dlg.open)dlg.showModal();break;
+    case 'closeDlg':dlg.close();break;
+    case 'assign':case 'unassign':case 'lock':case 'req':case 'reqReset':case 'openDay':cellAction(t.dataset.act,t);break;
+    case 'pickEmp':UI.availEmp=t.dataset.id;render();break;
+    case 'cycle':{
+      const e=t.dataset.emp,k=t.dataset.key;w.avail[e]=w.avail[e]||{};
+      const cur=w.avail[e][k]||'ok';const nx=cur==='ok'?'pref':cur==='pref'?'no':'ok';
+      if(nx==='ok')delete w.avail[e][k];else w.avail[e][k]=nx;
+      save();render();const b=document.querySelector(`[data-act="cycle"][data-key="${k}"]`);b&&b.focus();break;}
+    case 'clearAvail':delete w.avail[t.dataset.emp];save();render();break;
+    case 'addEmp':addEmp();break;
+    case 'absAdd':addAbsence(t);break;
+    case 'absApprove':{const a=S.absences.find(x=>x.id===t.dataset.id);if(!a)return;a.status='approved';const n=applyAbsence(a);save();render();
+      const nm=(S.emps.find(e=>e.id===a.empId)||{}).name||'';toast(n?`החופשה אושרה. ${n} שיבוצים של ${nm} הוסרו מהסידור וצריך להשלים אותם.`:'החופשה אושרה.');break;}
+    case 'absReject':{const a=S.absences.find(x=>x.id===t.dataset.id);if(!a)return;a.status='rejected';save();render();toast('הבקשה נדחתה.');break;}
+    case 'absDelete':{const a=S.absences.find(x=>x.id===t.dataset.id);if(!a||!confirm(UI.viewAs==='manager'?'למחוק את הרשומה? השיבוצים שהוסרו בגללה לא יחזרו אוטומטית.':'לבטל את בקשת החופשה?'))return;S.absences=S.absences.filter(x=>x!==a);save();render();break;}
+    case 'absView':viewFile(t.dataset.id);break;
+    case 'absCheck':{const a=S.absences.find(x=>x.id===t.dataset.id);if(!a)return;a.fileCheck=t.dataset.v;save();render();fileDlg.close();toast(a.fileCheck==='ok'?'האישור סומן כתקין.':'האישור סומן כלא תקין.');break;}
+    case 'closeFile':fileDlg.close();break;
+    case 'delEmp':{
+      const e=S.emps.find(x=>x.id===t.dataset.id);if(!e||!confirm(`למחוק את ${e.name}? השיבוצים שלו/ה יוסרו מכל השבועות.`))return;
+      S.emps=S.emps.filter(x=>x.id!==e.id);removeEmpEverywhere(e.id);save();render();break;}
+    case 'reset':
+      if(!confirm('לאפס את כל הנתונים לנתוני ההדגמה?'))return;
+      S=seed();UI.viewAs='manager';UI.availEmp=null;save();render();toast('הנתונים אופסו.');break;
+  }
+});
+
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='newEmp'){ev.preventDefault();addEmp();}});
+
+document.addEventListener('change',ev=>{
+  const t=ev.target;
+  if(t.id==='viewAs'){UI.viewAs=t.value;if(dlg.open)dlg.close();render();toast(t.value==='manager'?'עכשיו צופים כמנהל.':`עכשיו צופים כמו ${S.emps.find(e=>e.id===t.value).name} באפליקציה.`);return;}
+  if(t.dataset.absfile){const a=S.absences.find(x=>x.id===t.dataset.absfile);const f=t.files[0];if(!a||!f)return;
+    attachFile(a,f).then(ok=>{render();if(ok)toast('האישור צורף וממתין לבדיקה.');});return;}
+  if(t.dataset.field){
+    const e=S.emps.find(x=>x.id===t.dataset.id);if(!e)return;const f=t.dataset.field;
+    if(f==='name')e.name=t.value.trim()||e.name;
+    if(f==='min'||f==='max'){const v=Math.max(0,Math.min(7,parseInt(t.value,10)||0));e[f]=v;if(e.min>e.max){if(f==='min')e.max=e.min;else e.min=e.max;}}
+    if(f==='lead')e.lead=t.checked;
+    if(f==='active'){
+      if(!t.checked){
+        const ws=S.weekStart;
+        const has=Object.keys(S.weeks).some(k=>k>=ws&&Object.values(S.weeks[k].assign).some(a=>a.includes(e.id)));
+        if(has&&!confirm(`${e.name} יוסר/תוסר מכל השיבוצים מהשבוע הזה והלאה. להמשיך?`)){t.checked=true;return;}
+        const n=clearAssignments(e.id,dt=>dt>=ws);e.active=false;
+        if(UI.viewAs===e.id)UI.viewAs='manager';
+        save();render();toast(n?`${e.name} סומן/ה כלא פעיל/ה. ${n} שיבוצים הוסרו.`:`${e.name} סומן/ה כלא פעיל/ה.`);return;
+      }
+      e.active=true;
+    }
+    if(f==='restDay')e.restDay=t.value===''?null:Number(t.value);
+    if(f==='minor'){e.minor=t.checked;if(e.minor){e.allowed.e=false;e.allowed.n=false;}}
+    if(f.startsWith('allow-'))e.allowed[f.slice(6)]=t.checked;
+    save();render();return;
+  }
+  if(t.dataset.set){
+    const b=S.branch;const f=t.dataset.set;
+    if(f==='name')b.name=t.value.trim()||b.name;
+    if(f==='model')b.model=Number(t.value);
+    if(f==='minRest'||f==='weeklyRest')b.rules[f]=Math.max(0,Number(t.value)||0);
+    if(f==='needLead')b.rules.needLead=t.checked;
+    save();render();return;
+  }
+  if(t.dataset.tmpl){
+    const [d,s,p]=t.dataset.tmpl.split('-');const c=S.days[+d][s];
+    if(p==='req')c.req=Math.max(0,Math.min(20,parseInt(t.value,10)||0));
+    else if(t.value)c[p]=t.value;
+    save();render();return;
+  }
+  if(t.dataset.open!==undefined){
+    const d=Number(t.dataset.open);const b=S.branch;
+    b.closedDays=t.checked?b.closedDays.filter(x=>x!==d):b.closedDays.concat(d);
+    W().closed[d]=!t.checked;save();render();
+  }
+});
+
+ensureWeek();
+render();
+</script>
+</body>
+</html>

@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shift Scheduler
 
-## Getting Started
+Weekly shift scheduling for stores and shift-based businesses: automatic
+scheduling from employee constraints, vacation and sick-leave handling, and
+separate manager and employee views. Hebrew, right-to-left.
 
-First, run the development server:
+**Stack:** Next.js 15 · TypeScript · Tailwind · Supabase (PostgreSQL, Auth, Storage)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Status
+
+| Step | What | Status |
+| --- | --- | --- |
+| 1 | Project setup, database schema, row-level security, demo data, tests | ✅ done |
+| 2 | Connect Supabase, sign-in for managers and employees | next |
+| 3 | Manager screens: branch settings, employees | |
+| 4 | Availability, vacation and sick leave (private sick-note storage) | |
+| 5 | Scheduling engine + schedule board, publish | |
+| 6 | Employee mobile app (PWA), notifications, deploy to Vercel | |
+
+## Database
+
+```
+supabase/
+  migrations/
+    20261012000001_init.sql      tables, rules, row-level security, sign-up function
+    20261012000002_storage.sql   private bucket for sick notes (Supabase only)
+  seed.sql                       demo branch with 12 employees (same as the prototype)
+  tests/
+    00_supabase_stub.sql         stands in for Supabase auth when testing on plain PostgreSQL
+    01_security_test.sql         30 checks of who can see and change what
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Main tables: `organizations`, `branches`, `members`, `branch_members`,
+`template_slots` (hours and staffing per weekday), `schedules`, `slot_overrides`
+(per-week changes such as holiday eves), `assignments`, `availability`,
+`absences`, `schedule_events` (audit log).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### What the database guarantees
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Employees see only their own record, constraints and absences; coworkers' names
+  come from `branch_roster()` without phones or birth dates.
+- Employees see a schedule only after it is published, and cannot assign themselves.
+- Vacation requests from employees always start as pending; only a manager can
+  approve them. Sick leave is approved on entry; its certificate waits for a
+  manager's review.
+- Managers cannot grant the owner role. Businesses never see each other's data.
+- Every assignment change is written to an audit log nobody can edit.
 
-## Learn More
+### Run the tests
 
-To learn more about Next.js, take a look at the following resources:
+Needs PostgreSQL 15+ and `psql`. With Docker:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+docker run -d --name shifts-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
+PGURL=postgres://postgres:postgres@localhost:5432 ./scripts/test-db.sh
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Run the app
 
-## Deploy on Vercel
+```bash
+npm install
+npm run dev     # http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`docs/prototype.html` is the working prototype the app is being built from —
+open it in a browser.

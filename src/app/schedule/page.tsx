@@ -114,7 +114,39 @@ async function EmployeeSchedule({ branchId, week, context }: { branchId: string;
             ) : <p className="mt-2 text-muted">אין לך משמרות בשבוע הזה.</p>}
           </section>
 
-          <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+          {/* phones: the team's week, day by day */}
+          <h2 className="mt-6 text-lg font-bold sm:hidden">כל הצוות</h2>
+          <div className="mt-2 grid gap-2 sm:hidden">
+            {WEEKDAYS.map((d, i) => {
+              const daySlots = slotsData.kinds.map((k) => slotsData.slots.find((x) => x.weekday === i && x.kind === k)).filter(Boolean);
+              if (!daySlots.length) return null;
+              return (
+                <div key={d} className="rounded-2xl border border-line bg-surface p-3">
+                  <div className="flex items-baseline justify-between">
+                    <strong>{d}</strong>
+                    <span className="text-xs text-muted">{Number(slotsData.dates[i].slice(8, 10))}.{Number(slotsData.dates[i].slice(5, 7))}</span>
+                  </div>
+                  {daySlots.map((s) => {
+                    const ids = rows.filter((r) => r.weekday === i && r.kind === s!.kind).map((r) => r.member_id);
+                    return (
+                      <div key={s!.kind} className="mt-2">
+                        <span className="text-xs font-medium text-muted">{KIND_LABEL[s!.kind]} · <bdi dir="ltr">{s!.start}–{s!.end}</bdi></span>
+                        <div className="mt-1 flex flex-wrap gap-1 text-sm">
+                          {ids.length ? ids.map((id) => (
+                            <span key={id} className={`rounded-md border px-1.5 py-1 leading-none ${id === context.member_id ? "border-ink bg-ink text-surface" : "border-line"}`}>
+                              {names.get(id) ?? "—"}
+                            </span>
+                          )) : <span className="text-muted">—</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-line bg-surface sm:block">
             <table className="w-full min-w-[760px] border-separate border-spacing-0 text-sm">
               <thead>
                 <tr>

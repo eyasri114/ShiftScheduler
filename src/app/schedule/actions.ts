@@ -6,7 +6,8 @@ import { requireManager } from "@/lib/manager";
 import { analyze, autoSchedule, type Kind } from "@/lib/scheduler/engine";
 import { ensureSchedule, loadWeek } from "@/lib/scheduler/load";
 import { KIND_LABEL, SHIFT_KINDS, WEEKDAYS } from "@/lib/constants";
-import { fromIso, isIsoDate } from "@/lib/week";
+import { fromIso, isIsoDate, weekRange } from "@/lib/week";
+import { notifyMembers } from "@/lib/notify";
 
 type Result = { error?: string; message?: string };
 
@@ -143,21 +144,28 @@ export async function publish(week: string): Promise<Result> {
   const { data: s } = await supabase.from("schedules").select("id, status").eq("branch_id", branch.id).eq("week_start", week).maybeSingle();
   if (!s) return { error: "אין סידור לפרסם." };
 
-  let affected: number;
+  let ids: string[];
   if (s.status === "published") {
     const { data } = await supabase.rpc("changed_since_publish", { p_schedule: s.id });
-    affected = (data ?? []).length;
+    ids = (data ?? []) as string[];
   } else {
     const { data } = await supabase.from("assignments").select("member_id").eq("schedule_id", s.id);
-    affected = new Set((data ?? []).map((a) => a.member_id)).size;
+    ids = [...new Set((data ?? []).map((a) => a.member_id as string))];
   }
   const { error } = await supabase.from("schedules").update({ status: "published", published_at: new Date().toISOString() }).eq("id", s.id);
   if (error) return { error: "הפרסום נכשל." };
+
+  const range = weekRange(week);
+  await notifyMembers(ids, s.status === "published"
+    ? { kind: "schedule_changed", title: "המשמרות שלך השתנו", body: `עודכן הסידור לשבוע ${range}.`, url: `/schedule?week=${week}` }
+    : { kind: "schedule_published", title: "הסידור החדש פורסם", body: `הסידור לשבוע ${range} מחכה לך.`, url: `/schedule?week=${week}` });
+
   done();
   revalidatePath("/");
+  const who = ids.length === 1 ? "עובד/ת אחד/ת" : `${ids.length} עובדים`;
   return {
     message: s.status === "published"
-      ? `העדכון פורסם. ${affected} עובדים שהמשמרות שלהם השתנו יראו את השינוי.`
-      : `הסידור פורסם. ${affected} עובדים רואים עכשיו את המשמרות שלהם.`,
+      ? `העדכון פורסם. ${who} שהמשמרות שלהם השתנו קיבלו התראה.`
+      : `הסידור פורסם. ${who} קיבלו התראה עם המשמרות שלהם.`,
   };
 }

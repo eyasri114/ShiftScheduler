@@ -15,7 +15,25 @@ separate manager and employee views. Hebrew, right-to-left.
 | 3 | Manager screens: branch settings, employees | ✅ done |
 | 4 | Availability, vacation and sick leave (private sick-note storage) | ✅ done |
 | 5 | Scheduling engine + schedule board, publish | ✅ done |
-| 6 | Employee mobile app (PWA), notifications, deploy to Vercel | next |
+| 6 | Phone app (installable), notifications and push alerts, ready to deploy | ✅ done |
+
+## Notifications
+
+| Event | Who is told |
+| --- | --- |
+| Schedule published | everyone with shifts that week |
+| Published schedule changed | only the people whose shifts changed |
+| Vacation approved / rejected | the employee |
+| Sick note marked invalid | the employee |
+| New vacation request, sick report, sick note attached | the branch managers and the owner |
+
+Each notification appears under the bell in the app, and as a push alert on every
+phone the person enabled. Push needs VAPID keys (see `DEPLOY.md`); without them the
+in-app notifications still work. The app installs to the home screen (manifest +
+service worker); the service worker only handles alerts and never caches pages, so
+schedules are always current.
+
+**Going live:** see [`DEPLOY.md`](DEPLOY.md).
 
 ## Getting started
 
@@ -51,6 +69,7 @@ supabase/
     20261012000004_manage_members.sql  add_branch_member(); only owners create managers
     20261012000005_absences.sql  past weeks locked for employees; approved absences clear shifts
     20261012000006_schedule.sql  apply_schedule() saves only real changes; changed_since_publish()
+    20261012000007_notifications.sql  in-app notifications, push subscriptions, who may notify whom
   setup-supabase.sql             all migrations in one file, to paste into Supabase
   demo-data.sql                  optional demo branch, with you as owner
   seed.sql                       demo branch with 12 employees (same as the prototype)
@@ -61,6 +80,7 @@ supabase/
     03_manage_members_test.sql   9 checks of adding and editing employees
     04_absences_test.sql         9 checks of constraints, vacation and sick leave
     05_schedule_test.sql         6 checks of saving and publishing schedules
+    06_notifications_test.sql    12 checks of notifications and push subscriptions
 ```
 
 Main tables: `organizations`, `branches`, `members`, `branch_members`,
@@ -78,6 +98,7 @@ Main tables: `organizations`, `branches`, `members`, `branch_members`,
 | `/schedule` | everyone | managers: auto-schedule, edit, lock, staff up a week, close a day, publish; employees: the published week with their shifts |
 | `/availability` | everyone | employees mark prefer / can't per shift; managers see who submitted and can edit |
 | `/absences` | everyone | vacation requests (manager approves), sick leave with certificate upload and review |
+| `/notifications` | everyone | in-app notifications; turn on push alerts for this phone, send a test |
 | `/employees` | managers | list, add, edit, active/inactive, rest day, shift lead, minors |
 | `/employees/[id]` | managers | edit one employee |
 | `/settings` | managers | shift model, hours and staffing per weekday, closed days, rest rules |

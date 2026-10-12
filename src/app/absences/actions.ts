@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getMyContext } from "@/lib/context";
-import { isIsoDate } from "@/lib/week";
+import { dateRange, isIsoDate } from "@/lib/week";
+import { notifyManagers, notifyMembers } from "@/lib/notify";
 
 export type AbsenceFormState = { error?: string; saved?: string } | undefined;
 
@@ -60,6 +61,12 @@ export async function requestAbsence(_: AbsenceFormState, form: FormData): Promi
   revalidatePath("/absences");
   revalidatePath("/availability");
   const self = memberId === context.member_id;
+  if (self && context.role !== "owner") {  // tell the branch managers; an owner filing for themselves has no one to tell
+    const range = dateRange(start_date, end_date);
+    await notifyManagers(type === "sick"
+      ? { kind: "sick_reported", title: `${context.full_name} דיווח/ה על מחלה`, body: range + (file ? " · צורף אישור" : ""), url: "/absences" }
+      : { kind: "vacation_requested", title: `${context.full_name} ביקש/ה חופשה`, body: range + (note ? ` · ${note}` : ""), url: "/absences" });
+  }
   if (type === "sick") {
     return { saved: (self ? "המחלה דווחה למנהל." : "המחלה נרשמה.") +
       " משמרות שכבר שובצו בימים האלה הוסרו מהסידור." + (file ? fileNote : self ? " אפשר לצרף את אישור המחלה גם מאוחר יותר." : "") };
@@ -78,6 +85,10 @@ export async function attachCertificate(absenceId: string, _: AbsenceFormState, 
   const r = await upload(a.member_id, absenceId, file);
   if (r.error) return { error: "ההעלאה נכשלה. נסו שוב." };
   revalidatePath("/absences");
+  const { context } = await getMyContext();
+  if (context && a.member_id === context.member_id) {
+    await notifyManagers({ kind: "certificate_added", title: `${context.full_name} צירף/ה אישור מחלה`, url: "/absences" });
+  }
   return { saved: "האישור צורף וממתין לבדיקת המנהל." };
 }
 
@@ -85,18 +96,30 @@ export async function decideVacation(absenceId: string, approve: boolean) {
   const { context } = await getMyContext();
   if (!context) return;
   const supabase = await createClient();
-  await supabase.from("absences").update({
+  const { data: a } = await supabase.from("absences").update({
     status: approve ? "approved" : "rejected",
     reviewed_by: context.member_id,
     reviewed_at: new Date().toISOString(),
-  }).eq("id", absenceId);
+  }).eq("id", absenceId).select("member_id, start_date, end_date").maybeSingle();
+  if (a) {
+    await notifyMembers([a.member_id], {
+      kind: approve ? "vacation_approved" : "vacation_rejected",
+      title: approve ? "בקשת החופשה שלך אושרה" : "בקשת החופשה שלך נדחתה",
+      body: dateRange(a.start_date, a.end_date), url: "/absences",
+    });
+  }
   revalidatePath("/absences");
   revalidatePath("/availability");
 }
 
 export async function reviewCertificate(absenceId: string, valid: boolean) {
   const supabase = await createClient();
-  await supabase.from("absences").update({ attachment_review: valid ? "valid" : "invalid" }).eq("id", absenceId);
+  const { data: a } = await supabase.from("absences").update({ attachment_review: valid ? "valid" : "invalid" })
+    .eq("id", absenceId).select("member_id, start_date, end_date").maybeSingle();
+  if (a && !valid) {
+    await notifyMembers([a.member_id], { kind: "certificate_invalid", title: "אישור המחלה שצירפת סומן כלא תקין",
+      body: `${dateRange(a.start_date, a.end_date)} · אפשר לצרף אישור חדש`, url: "/absences" });
+  }
   revalidatePath("/absences");
 }
 

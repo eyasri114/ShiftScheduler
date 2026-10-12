@@ -50,10 +50,55 @@ export function AvailabilityGrid({
 
   const marks = Object.keys(values).length;
 
+  function renderCell(d: number, k: ShiftKind) {
+    const day = WEEKDAYS[d];
+    const slot = slotAt(d, k);
+    const reason = !slot ? "אין משמרת" : blocked[d] ?? (!allowedKinds.includes(k) ? "לא רלוונטי" : null);
+    if (reason) {
+      return (
+        <span className="block rounded-lg border border-dashed border-line-strong px-1 py-3.5 text-center text-xs text-muted">
+          {reason}
+        </span>
+      );
+    }
+    const state = values[`${d}-${k}`] ?? "ok";
+    return (
+      <button
+        type="button"
+        disabled={locked}
+        onClick={() => cycle(d, k)}
+        aria-label={`${KIND_LABEL[k]} יום ${day}, ${slot!.start}–${slot!.end}: ${LABEL[state]}`}
+        className={`block w-full rounded-lg border px-1 py-2 text-center text-sm font-semibold transition disabled:cursor-default ${STYLE[state]} ${locked ? "opacity-70" : "hover:brightness-95"}`}
+      >
+        {LABEL[state]}
+        <span className="block text-[11px] font-normal opacity-70" dir="ltr">{slot!.start}–{slot!.end}</span>
+      </button>
+    );
+  }
+
   return (
     <div>
       {error && <p role="alert" className="mb-3 rounded-lg bg-bad-tint px-3 py-2 text-sm text-bad">{error}</p>}
-      <div className="overflow-x-auto rounded-2xl border border-line bg-surface p-3">
+      {/* phones: one card per day */}
+      <div className="grid gap-2 sm:hidden">
+        {WEEKDAYS.map((day, d) => (
+          <div key={day} className="rounded-2xl border border-line bg-surface p-3">
+            <div className="flex items-baseline justify-between">
+              <strong>{day}</strong>
+              <span className="text-xs text-muted">{Number(dates[d].slice(8, 10))}.{Number(dates[d].slice(5, 7))}</span>
+            </div>
+            <div className={`mt-2 grid gap-2 ${kinds.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+              {kinds.map((k) => (
+                <div key={k}>
+                  <span className="mb-1 block text-xs font-medium text-muted">{KIND_LABEL[k]}</span>
+                  {renderCell(d, k)}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto rounded-2xl border border-line bg-surface p-3 sm:block">
         <table className="w-full min-w-[640px] border-separate border-spacing-1.5">
           <thead>
             <tr>
@@ -70,34 +115,7 @@ export function AvailabilityGrid({
             {kinds.map((k) => (
               <tr key={k}>
                 <th scope="row" className="text-start text-sm font-semibold">{KIND_LABEL[k]}</th>
-                {WEEKDAYS.map((day, d) => {
-                  const slot = slotAt(d, k);
-                  const reason = !slot ? "אין משמרת" : blocked[d] ?? (!allowedKinds.includes(k) ? "לא רלוונטי" : null);
-                  if (reason) {
-                    return (
-                      <td key={day}>
-                        <span className="block rounded-lg border border-dashed border-line-strong px-1 py-3.5 text-center text-xs text-muted">
-                          {reason}
-                        </span>
-                      </td>
-                    );
-                  }
-                  const state = values[`${d}-${k}`] ?? "ok";
-                  return (
-                    <td key={day}>
-                      <button
-                        type="button"
-                        disabled={locked}
-                        onClick={() => cycle(d, k)}
-                        aria-label={`${KIND_LABEL[k]} יום ${day}, ${slot!.start}–${slot!.end}: ${LABEL[state]}`}
-                        className={`block w-full rounded-lg border px-1 py-2 text-center text-sm font-semibold transition disabled:cursor-default ${STYLE[state]} ${locked ? "opacity-70" : "hover:brightness-95"}`}
-                      >
-                        {LABEL[state]}
-                        <span className="block text-[11px] font-normal opacity-70" dir="ltr">{slot!.start}–{slot!.end}</span>
-                      </button>
-                    </td>
-                  );
-                })}
+                {WEEKDAYS.map((day, d) => <td key={day}>{renderCell(d, k)}</td>)}
               </tr>
             ))}
           </tbody>

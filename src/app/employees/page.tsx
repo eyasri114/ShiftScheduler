@@ -81,7 +81,7 @@ export default async function EmployeesPage() {
                   </span>
                   {m.email && <div className="mt-0.5 text-xs text-muted" dir="ltr" style={{ textAlign: "right" }}>{m.email}</div>}
                 </td>
-                <td className="px-4 py-3 tabular-nums">{m.min_shifts}–{m.max_shifts}</td>
+                <td className="px-4 py-3 tabular-nums"><bdi dir="ltr">{m.min_shifts}–{m.max_shifts}</bdi></td>
                 <td className="px-4 py-3">{m.allowed_kinds.filter((k) => kinds.includes(k)).map((k) => KIND_LABEL[k]).join(", ")}</td>
                 <td className="px-4 py-3">{m.rest_weekday === null ? "—" : WEEKDAYS[m.rest_weekday]}</td>
                 <td className="px-4 py-3">

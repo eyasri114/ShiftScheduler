@@ -27,12 +27,21 @@ export default async function Home() {
         {isManager ? "בשלב הבא יתווסף כאן לוח הסידור השבועי." : "בקרוב יופיעו כאן המשמרות שלך."}
       </p>
 
-      {isManager && (
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <QuickLink href="/employees" title="עובדים" text="הוספה ועריכה של עובדים, היקף משרה, יום מנוחה ואחראי משמרת." />
-          <QuickLink href="/settings" title="הגדרות סניף" text="שעות המשמרות, כמה עובדים צריך בכל יום, וכללי המנוחה." />
-        </div>
-      )}
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        {isManager ? (
+          <>
+            <QuickLink href="/availability" title="אילוצים" text="מי סימן אילוצים לשבוע הבא, ומה כל אחד סימן." />
+            <QuickLink href="/absences" title="היעדרויות" text="אישור חופשות ובדיקת אישורי מחלה." />
+            <QuickLink href="/employees" title="עובדים" text="הוספה ועריכה של עובדים, היקף משרה, יום מנוחה ואחראי משמרת." />
+            <QuickLink href="/settings" title="הגדרות סניף" text="שעות המשמרות, כמה עובדים צריך בכל יום, וכללי המנוחה." />
+          </>
+        ) : (
+          <>
+            <QuickLink href="/availability" title="האילוצים שלי" text="סמנו לאילו משמרות אתם יכולים להגיע בשבוע הבא." />
+            <QuickLink href="/absences" title="חופשה ומחלה" text="בקשת חופשה, דיווח מחלה וצירוף אישור מחלה." />
+          </>
+        )}
+      </div>
 
       <section className="mt-8 rounded-2xl border border-line bg-surface p-5">
         <h2 className="font-bold">צוות הסניף ({roster?.length ?? 0})</h2>

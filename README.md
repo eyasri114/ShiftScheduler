@@ -13,8 +13,8 @@ separate manager and employee views. Hebrew, right-to-left.
 | 1 | Project setup, database schema, row-level security, demo data, tests | ✅ done |
 | 2 | Connect Supabase, sign-in for managers and employees | ✅ done |
 | 3 | Manager screens: branch settings, employees | ✅ done |
-| 4 | Availability, vacation and sick leave (private sick-note storage) | next |
-| 5 | Scheduling engine + schedule board, publish | |
+| 4 | Availability, vacation and sick leave (private sick-note storage) | ✅ done |
+| 5 | Scheduling engine + schedule board, publish | next |
 | 6 | Employee mobile app (PWA), notifications, deploy to Vercel | |
 
 ## Getting started
@@ -49,6 +49,7 @@ supabase/
     20261012000002_storage.sql   private bucket for sick notes (Supabase only)
     20261012000003_auth.sql      links invited employees to their accounts; my_context()
     20261012000004_manage_members.sql  add_branch_member(); only owners create managers
+    20261012000005_absences.sql  past weeks locked for employees; approved absences clear shifts
   setup-supabase.sql             all migrations in one file, to paste into Supabase
   demo-data.sql                  optional demo branch, with you as owner
   seed.sql                       demo branch with 12 employees (same as the prototype)
@@ -57,6 +58,7 @@ supabase/
     01_security_test.sql         30 checks of who can see and change what
     02_auth_test.sql             7 checks of account linking
     03_manage_members_test.sql   9 checks of adding and editing employees
+    04_absences_test.sql         9 checks of constraints, vacation and sick leave
 ```
 
 Main tables: `organizations`, `branches`, `members`, `branch_members`,
@@ -71,6 +73,8 @@ Main tables: `organizations`, `branches`, `members`, `branch_members`,
 | `/login`, `/signup` | everyone | sign in, sign up, email confirmation |
 | `/onboarding` | new account | open a new business |
 | `/` | everyone | home: team list; managers get shortcuts |
+| `/availability` | everyone | employees mark prefer / can't per shift; managers see who submitted and can edit |
+| `/absences` | everyone | vacation requests (manager approves), sick leave with certificate upload and review |
 | `/employees` | managers | list, add, edit, active/inactive, rest day, shift lead, minors |
 | `/employees/[id]` | managers | edit one employee |
 | `/settings` | managers | shift model, hours and staffing per weekday, closed days, rest rules |

@@ -1,25 +1,53 @@
 @import "tailwindcss";
 
+/* Same palette as the prototype. */
 :root {
   --background: #f2f4f3;
-  --foreground: #16302d;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Heebo Variable", system-ui, sans-serif;
+  --surface: #ffffff;
+  --ink: #16302d;
+  --muted: #596c69;
+  --line: #d6dedc;
+  --line-strong: #b6c4c1;
+  --focus: #22406e;
+  --ok: #23774a;
+  --ok-tint: #e0f1e7;
+  --bad: #b9342c;
+  --bad-tint: #fbe6e4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0e1716;
-    --foreground: #e4edeb;
+    --surface: #16211f;
+    --ink: #e4edeb;
+    --muted: #9db1ad;
+    --line: #283735;
+    --line-strong: #3b4d4a;
+    --focus: #86a8de;
+    --ok: #5cc28a;
+    --ok-tint: #173226;
+    --bad: #f07a70;
+    --bad-tint: #3a1d1b;
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-focus: var(--focus);
+  --color-ok: var(--ok);
+  --color-ok-tint: var(--ok-tint);
+  --color-bad: var(--bad);
+  --color-bad-tint: var(--bad-tint);
+  --font-sans: "Heebo Variable", system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--ink);
   font-family: var(--font-sans);
 }

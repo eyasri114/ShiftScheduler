@@ -273,7 +273,7 @@ create trigger trg_absences_touch  before update on public.absences  for each ro
 -- status or review fields — only managers can.
 create or replace function public.guard_absence()
 returns trigger language plpgsql security definer set search_path = public as $$
-declare v_manager boolean := public.manages_member(new.member_id);
+declare v_manager boolean := auth.uid() is null or public.manages_member(new.member_id);  -- no user = admin
 begin
   if tg_op = 'INSERT' then
     if new.type = 'sick' then
@@ -316,6 +316,8 @@ create trigger trg_absences_guard before insert or update on public.absences
 create or replace function public.guard_member_role()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
+  -- No signed-in user = the project owner working in the SQL Editor / admin tools.
+  if auth.uid() is null then return new; end if;
   if new.role = 'owner' and (tg_op = 'INSERT' or old.role <> 'owner')
      and not public.is_org_owner(new.org_id)
      -- the very first member of a brand-new organization becomes its owner

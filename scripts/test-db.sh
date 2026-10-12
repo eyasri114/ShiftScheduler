@@ -15,7 +15,7 @@ PSQL=(psql -q -X -v ON_ERROR_STOP=1)
 
 "${PSQL[@]}" "$PGURL/postgres" -c "drop database if exists $DB" -c "create database $DB"
 "${PSQL[@]}" "$PGURL/$DB" -f supabase/tests/00_supabase_stub.sql
-for f in supabase/migrations/*_init.sql; do "${PSQL[@]}" "$PGURL/$DB" -f "$f"; done
+for f in $(ls supabase/migrations/*.sql | grep -v _storage); do "${PSQL[@]}" "$PGURL/$DB" -f "$f"; done
 "${PSQL[@]}" "$PGURL/$DB" -f supabase/seed.sql
-"${PSQL[@]}" "$PGURL/$DB" -t -f supabase/tests/01_security_test.sql 2>&1 \
+for t in supabase/tests/0[1-9]_*.sql; do "${PSQL[@]}" "$PGURL/$DB" -t -f "$t" 2>&1; done \
   | sed 's/^psql:[^:]*:[0-9]*: //; s/^NOTICE:  //' | grep -v '^ *$'

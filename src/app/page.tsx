@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppShell } from "@/components/app-shell";
 import { getMyContext, ROLE_LABEL } from "@/lib/context";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "@/app/auth/actions";
 
 export default async function Home() {
   const { user, context } = await getMyContext();
@@ -19,49 +20,44 @@ export default async function Home() {
     : { data: [] };
 
   return (
-    <div className="min-h-dvh">
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4">
-          <div>
-            <p className="text-lg font-bold">{context.org.name}</p>
-            <p className="text-sm text-muted">{branch ? branch.name : "אין סניף"}</p>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-muted sm:inline">
-              {context.full_name} · {ROLE_LABEL[context.role]}
-            </span>
-            <form action={signOut}>
-              <button className="rounded-lg border border-line-strong px-3 py-1.5 font-medium hover:border-ink">
-                יציאה
-              </button>
-            </form>
-          </div>
+    <AppShell context={context}>
+      <h1 className="text-2xl font-bold">שלום, {context.full_name.split(" ")[0]}</h1>
+      <p className="mt-1 text-muted">
+        נכנסת בתור {ROLE_LABEL[context.role]}.{" "}
+        {isManager ? "בשלב הבא יתווסף כאן לוח הסידור השבועי." : "בקרוב יופיעו כאן המשמרות שלך."}
+      </p>
+
+      {isManager && (
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <QuickLink href="/employees" title="עובדים" text="הוספה ועריכה של עובדים, היקף משרה, יום מנוחה ואחראי משמרת." />
+          <QuickLink href="/settings" title="הגדרות סניף" text="שעות המשמרות, כמה עובדים צריך בכל יום, וכללי המנוחה." />
         </div>
-      </header>
+      )}
 
-      <main className="mx-auto max-w-4xl px-5 py-8">
-        <h1 className="text-2xl font-bold">שלום, {context.full_name.split(" ")[0]}</h1>
-        <p className="mt-1 text-muted">
-          נכנסת בתור {ROLE_LABEL[context.role]}.{" "}
-          {isManager ? "בשלב הבא יופיעו כאן הגדרות הסניף וניהול העובדים." : "בקרוב יופיעו כאן המשמרות שלך."}
-        </p>
+      <section className="mt-8 rounded-2xl border border-line bg-surface p-5">
+        <h2 className="font-bold">צוות הסניף ({roster?.length ?? 0})</h2>
+        {roster && roster.length > 0 ? (
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {roster.map((m: { member_id: string; full_name: string; is_shift_lead: boolean }) => (
+              <li key={m.member_id} className="rounded-md border border-line px-2.5 py-1 text-sm">
+                {m.full_name}
+                {m.is_shift_lead && <span className="ms-1.5 text-xs text-muted">אחראי/ת</span>}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-sm text-muted">אין עדיין עובדים בסניף.</p>
+        )}
+      </section>
+    </AppShell>
+  );
+}
 
-        <section className="mt-8 rounded-2xl border border-line bg-surface p-5">
-          <h2 className="font-bold">צוות הסניף ({roster?.length ?? 0})</h2>
-          {roster && roster.length > 0 ? (
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {roster.map((m: { member_id: string; full_name: string; is_shift_lead: boolean }) => (
-                <li key={m.member_id} className="rounded-md border border-line px-2.5 py-1 text-sm">
-                  {m.full_name}
-                  {m.is_shift_lead && <span className="ms-1.5 text-xs text-muted">אחראי/ת</span>}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-2 text-sm text-muted">אין עדיין עובדים בסניף.</p>
-          )}
-        </section>
-      </main>
-    </div>
+function QuickLink({ href, title, text }: { href: string; title: string; text: string }) {
+  return (
+    <Link href={href} className="rounded-2xl border border-line bg-surface p-5 transition hover:border-ink">
+      <span className="text-lg font-bold">{title} ←</span>
+      <span className="mt-1 block text-sm text-muted">{text}</span>
+    </Link>
   );
 }

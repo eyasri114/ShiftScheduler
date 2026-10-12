@@ -12,8 +12,8 @@ separate manager and employee views. Hebrew, right-to-left.
 | --- | --- | --- |
 | 1 | Project setup, database schema, row-level security, demo data, tests | ✅ done |
 | 2 | Connect Supabase, sign-in for managers and employees | ✅ done |
-| 3 | Manager screens: branch settings, employees | next |
-| 4 | Availability, vacation and sick leave (private sick-note storage) | |
+| 3 | Manager screens: branch settings, employees | ✅ done |
+| 4 | Availability, vacation and sick leave (private sick-note storage) | next |
 | 5 | Scheduling engine + schedule board, publish | |
 | 6 | Employee mobile app (PWA), notifications, deploy to Vercel | |
 
@@ -48,6 +48,7 @@ supabase/
     20261012000001_init.sql      tables, rules, row-level security, sign-up function
     20261012000002_storage.sql   private bucket for sick notes (Supabase only)
     20261012000003_auth.sql      links invited employees to their accounts; my_context()
+    20261012000004_manage_members.sql  add_branch_member(); only owners create managers
   setup-supabase.sql             all migrations in one file, to paste into Supabase
   demo-data.sql                  optional demo branch, with you as owner
   seed.sql                       demo branch with 12 employees (same as the prototype)
@@ -55,12 +56,24 @@ supabase/
     00_supabase_stub.sql         stands in for Supabase auth when testing on plain PostgreSQL
     01_security_test.sql         30 checks of who can see and change what
     02_auth_test.sql             7 checks of account linking
+    03_manage_members_test.sql   9 checks of adding and editing employees
 ```
 
 Main tables: `organizations`, `branches`, `members`, `branch_members`,
 `template_slots` (hours and staffing per weekday), `schedules`, `slot_overrides`
 (per-week changes such as holiday eves), `assignments`, `availability`,
 `absences`, `schedule_events` (audit log).
+
+## App screens
+
+| Page | Who | What |
+| --- | --- | --- |
+| `/login`, `/signup` | everyone | sign in, sign up, email confirmation |
+| `/onboarding` | new account | open a new business |
+| `/` | everyone | home: team list; managers get shortcuts |
+| `/employees` | managers | list, add, edit, active/inactive, rest day, shift lead, minors |
+| `/employees/[id]` | managers | edit one employee |
+| `/settings` | managers | shift model, hours and staffing per weekday, closed days, rest rules |
 
 ### What the database guarantees
 

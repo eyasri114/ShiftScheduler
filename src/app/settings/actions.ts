@@ -49,6 +49,7 @@ export async function saveSettings(_: SettingsState, form: FormData): Promise<Se
     .update({
       name, shift_model, min_rest_hours, weekly_rest_hours, closed_weekdays,
       require_shift_lead: form.get("require_shift_lead") === "on",
+      swap_approval: form.get("swap_approval") === "auto" ? "auto" : "manager",
     })
     .eq("id", branch.id)
     .select("id");

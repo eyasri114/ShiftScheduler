@@ -16,6 +16,7 @@ separate manager and employee views. Hebrew, right-to-left.
 | 4 | Availability, vacation and sick leave (private sick-note storage) | ✅ done |
 | 5 | Scheduling engine + schedule board, publish | ✅ done |
 | 6 | Phone app (installable), notifications and push alerts, ready to deploy | ✅ done |
+| 7 | Shift swaps between employees (manager approval or automatic, per branch) | ✅ done |
 
 ## Notifications
 
@@ -26,6 +27,7 @@ separate manager and employee views. Hebrew, right-to-left.
 | Vacation approved / rejected | the employee |
 | Sick note marked invalid | the employee |
 | New vacation request, sick report, sick note attached | the branch managers and the owner |
+| Swap requested / accepted / declined / approved / done | the people involved, and the managers when their approval is needed (or, in automatic mode, after it happened) |
 
 Each notification appears under the bell in the app, and as a push alert on every
 phone the person enabled. Push needs VAPID keys (see `DEPLOY.md`); without them the
@@ -70,6 +72,7 @@ supabase/
     20261012000005_absences.sql  past weeks locked for employees; approved absences clear shifts
     20261012000006_schedule.sql  apply_schedule() saves only real changes; changed_since_publish()
     20261012000007_notifications.sql  in-app notifications, push subscriptions, who may notify whom
+    20261013000008_swaps.sql     shift swaps, rule checks in SQL, approval mode per branch
   setup-supabase.sql             all migrations in one file, to paste into Supabase
   demo-data.sql                  optional demo branch, with you as owner
   seed.sql                       demo branch with 12 employees (same as the prototype)
@@ -81,12 +84,13 @@ supabase/
     04_absences_test.sql         9 checks of constraints, vacation and sick leave
     05_schedule_test.sql         6 checks of saving and publishing schedules
     06_notifications_test.sql    12 checks of notifications and push subscriptions
+    07_swaps_test.sql            35 checks of swap rules, both approval modes and privacy
 ```
 
 Main tables: `organizations`, `branches`, `members`, `branch_members`,
 `template_slots` (hours and staffing per weekday), `schedules`, `slot_overrides`
 (per-week changes such as holiday eves), `assignments`, `availability`,
-`absences`, `schedule_events` (audit log).
+`absences`, `shift_swaps`, `notifications`, `push_subscriptions`, `schedule_events` (audit log).
 
 ## App screens
 
@@ -120,6 +124,23 @@ checks on the board).
   swaps), best of several restarts. Locked assignments are kept.
 - **Tests:** `npm run test:engine` — 10 tests, including a 60-person branch with
   three shifts a day in under 5 seconds.
+
+## Shift swaps
+
+An employee opens **החלפה** next to one of their shifts and either **gives it** to a
+coworker or **exchanges** it for one of the coworker's shifts. Only coworkers and
+shifts that keep both people within every hard rule are offered. The coworker
+accepts or declines; then, depending on the branch setting:
+
+- **באישור מנהל** (default): the manager approves or rejects on the schedule board.
+- **אוטומטית**: it happens at once, and the managers are told.
+
+The rules are checked again in the database at the moment the swap executes
+(`_shift_problem()` mirrors the engine's `violation()`), so a swap that became
+invalid in the meantime fails instead of breaking a rule. Swapped shifts are
+locked so auto-scheduling won't undo them, and an agreed swap doesn't count as an
+unpublished change. Employees can't call the rule checker themselves, so they
+can't probe coworkers' constraints or absences.
 
 ### What the database guarantees
 

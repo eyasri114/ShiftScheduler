@@ -8,7 +8,7 @@ import { saveSettings } from "./actions";
 export type Slot = { weekday: number; kind: ShiftKind; start_time: string; end_time: string; required: number };
 export type BranchSettings = {
   name: string; shift_model: number; min_rest_hours: number; weekly_rest_hours: number;
-  require_shift_lead: boolean; closed_weekdays: number[];
+  require_shift_lead: boolean; closed_weekdays: number[]; swap_approval: "manager" | "auto";
 };
 
 const KIND_STYLE: Record<ShiftKind, string> = {
@@ -122,6 +122,24 @@ export function SettingsForm({ branch, slots }: { branch: BranchSettings; slots:
         <p className="mt-3 text-xs text-muted">
           ברירות המחדל מבוססות על חוק שעות עבודה ומנוחה. כדאי לאמת אותן מול יועץ לפני שימוש אמיתי.
         </p>
+      </section>
+
+      <section className="rounded-2xl border border-line bg-surface p-5">
+        <h2 className="text-lg font-bold">החלפות משמרות בין עובדים</h2>
+        <p className="mt-1 text-sm text-muted">
+          עובד/ת יכול/ה למסור משמרת לעמית/ה או להחליף איתו/ה משמרת, והעמית/ה צריך/ה להסכים. בכל מקרה ההחלפה מתבצעת רק אם שני העובדים עומדים בכל כללי השיבוץ.
+        </p>
+        <fieldset className="mt-4 grid gap-3">
+          <legend className="sr-only">מי מאשר החלפות</legend>
+          <label className="flex items-start gap-2.5">
+            <input type="radio" name="swap_approval" value="manager" defaultChecked={branch.swap_approval !== "auto"} className="mt-1 size-4 accent-ink" />
+            <span><strong>באישור מנהל</strong><span className="block text-sm text-muted">אחרי שהעמית/ה מסכים/ה, ההחלפה מחכה לאישורך בלוח הסידור.</span></span>
+          </label>
+          <label className="flex items-start gap-2.5">
+            <input type="radio" name="swap_approval" value="auto" defaultChecked={branch.swap_approval === "auto"} className="mt-1 size-4 accent-ink" />
+            <span><strong>אוטומטית</strong><span className="block text-sm text-muted">ההחלפה מתבצעת מיד כששני העובדים מסכימים, ואת/ה מקבל/ת הודעה עליה.</span></span>
+          </label>
+        </fieldset>
       </section>
 
       <div className="sm:max-w-xs">

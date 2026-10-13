@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 import { loadWeek } from "@/lib/scheduler/load";
 import { getWeekSlots } from "@/lib/branch-data";
 import { KIND_LABEL, WEEKDAYS, type ShiftKind } from "@/lib/constants";
-import { addDays, thisWeekStart, weekParam, weekRange } from "@/lib/week";
+import { addDays, thisWeekStart, todayIso, weekParam, weekRange } from "@/lib/week";
 import { ScheduleBoard } from "./board";
+import { SwapList } from "./swap-list";
+import { SwapButton } from "./swaps";
 
 type Search = Promise<{ week?: string }>;
 
@@ -24,7 +26,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Sea
   return (
     <AppShell context={context}>
       {isManager
-        ? <ManagerBoard branchId={branch.id} week={week} />
+        ? <ManagerBoard branchId={branch.id} week={week} myId={context.member_id} />
         : <EmployeeSchedule branchId={branch.id} week={week} context={context} />}
     </AppShell>
   );
@@ -41,8 +43,12 @@ function WeekNav({ week }: { week: string }) {
   );
 }
 
-async function ManagerBoard({ branchId, week }: { branchId: string; week: string }) {
-  const data = await loadWeek(branchId, week);
+async function ManagerBoard({ branchId, week, myId }: { branchId: string; week: string; myId: string }) {
+  const supabase = await createClient();
+  const [data, { data: br }] = await Promise.all([
+    loadWeek(branchId, week),
+    supabase.from("branches").select("swap_approval").eq("id", branchId).single(),
+  ]);
   const status = data.schedule?.status ?? "none";
   const changed = data.changedSincePublish.length;
   const pill = status === "published"
@@ -61,6 +67,7 @@ async function ManagerBoard({ branchId, week }: { branchId: string; week: string
         </div>
         <WeekNav week={week} />
       </div>
+      <SwapList branchId={branchId} myId={myId} isManager approvalMode={(br?.swap_approval ?? "manager") as "manager" | "auto"} />
       <div className="mt-5">
         <ScheduleBoard
           key={week}
@@ -82,6 +89,7 @@ async function EmployeeSchedule({ branchId, week, context }: { branchId: string;
     getWeekSlots(branchId, week),
   ]);
   const names = new Map(((roster ?? []) as { member_id: string; full_name: string }[]).map((r) => [r.member_id, r.full_name]));
+  const today = todayIso();
   const rows = (schedule?.assignments ?? []) as { member_id: string; weekday: number; kind: ShiftKind }[];
   const mine = rows.filter((r) => r.member_id === context.member_id)
     .map((r) => ({ ...r, slot: slotsData.slots.find((s) => s.weekday === r.weekday && s.kind === r.kind) }))
@@ -104,15 +112,23 @@ async function EmployeeSchedule({ branchId, week, context }: { branchId: string;
             {mine.length ? (
               <ul className="mt-2 grid gap-1.5">
                 {mine.map((m) => (
-                  <li key={`${m.weekday}-${m.kind}`} className="flex items-center gap-2">
+                  <li key={`${m.weekday}-${m.kind}`} className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold">יום {WEEKDAYS[m.weekday]} {Number(slotsData.dates[m.weekday].slice(8, 10))}.{Number(slotsData.dates[m.weekday].slice(5, 7))}</span>
                     <span>· {KIND_LABEL[m.kind]}</span>
                     {m.slot && <bdi dir="ltr" className="text-muted">{m.slot.start}–{m.slot.end}</bdi>}
+                    {slotsData.dates[m.weekday] >= today && (
+                      <span className="ms-auto">
+                        <SwapButton scheduleId={schedule.id} weekday={m.weekday} kind={m.kind}
+                          label={`${KIND_LABEL[m.kind]}, יום ${WEEKDAYS[m.weekday]} ${Number(slotsData.dates[m.weekday].slice(8, 10))}.${Number(slotsData.dates[m.weekday].slice(5, 7))}${m.slot ? ` · ${m.slot.start}–${m.slot.end}` : ""}`} />
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
             ) : <p className="mt-2 text-muted">אין לך משמרות בשבוע הזה.</p>}
           </section>
+
+          <SwapList branchId={branchId} myId={context.member_id} isManager={false} />
 
           {/* phones: the team's week, day by day */}
           <h2 className="mt-6 text-lg font-bold sm:hidden">כל הצוות</h2>

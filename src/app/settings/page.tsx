@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   const [{ data: b }, { data: slots }] = await Promise.all([
     supabase
       .from("branches")
-      .select("name, shift_model, min_rest_hours, weekly_rest_hours, require_shift_lead, closed_weekdays")
+      .select("name, shift_model, min_rest_hours, weekly_rest_hours, require_shift_lead, closed_weekdays, swap_approval")
       .eq("id", branch.id)
       .single(),
     supabase.from("template_slots").select("weekday, kind, start_time, end_time, required").eq("branch_id", branch.id),

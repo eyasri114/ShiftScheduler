@@ -2,8 +2,10 @@ import "server-only";
 import webpush from "web-push";
 import { createClient } from "@/lib/supabase/server";
 
-type Target = { member_id: string; endpoint: string; p256dh: string; auth: string };
+type Target = { member_id?: string; endpoint: string; p256dh: string; auth: string };
 export type Message = { kind: string; title: string; body?: string; url?: string };
+/** A push alert the database prepared, with its own text (used by shift swaps). */
+export type PushRow = { endpoint: string; p256dh: string; auth: string; title: string; body?: string | null; url?: string | null };
 
 const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const privateKey = process.env.VAPID_PRIVATE_KEY;
@@ -12,14 +14,13 @@ const pushReady = Boolean(publicKey && privateKey);
 if (pushReady) webpush.setVapidDetails(subject, publicKey!, privateKey!);
 
 /**
- * Sends phone alerts to the subscriptions the database handed back.
- * Without VAPID keys configured, only the in-app notifications are created.
+ * Sends phone alerts. Without VAPID keys configured, only the in-app
+ * notifications (already stored by the database) exist.
  */
-async function push(targets: Target[], msg: Message) {
-  if (!pushReady || !targets.length) return;
-  const payload = JSON.stringify({ title: msg.title, body: msg.body ?? "", url: msg.url ?? "/" });
+async function send(items: { target: Target; payload: string }[]) {
+  if (!pushReady || !items.length) return;
   const dead: string[] = [];
-  await Promise.all(targets.map(async (t) => {
+  await Promise.all(items.map(async ({ target: t, payload }) => {
     try {
       await webpush.sendNotification({ endpoint: t.endpoint, keys: { p256dh: t.p256dh, auth: t.auth } },
         payload, { TTL: 60 * 60 * 24, urgency: "normal" });
@@ -33,6 +34,19 @@ async function push(targets: Target[], msg: Message) {
     const supabase = await createClient();
     await supabase.rpc("remove_dead_subscriptions", { p_endpoints: dead });
   }
+}
+
+const payloadOf = (title: string, body?: string | null, url?: string | null) =>
+  JSON.stringify({ title, body: body ?? "", url: url ?? "/" });
+
+async function push(targets: Target[], msg: Message) {
+  const payload = payloadOf(msg.title, msg.body, msg.url);
+  await send(targets.map((target) => ({ target, payload })));
+}
+
+/** Sends alerts that the database already composed per person. */
+export async function pushRows(rows: PushRow[]) {
+  await send(rows.map((r) => ({ target: r, payload: payloadOf(r.title, r.body, r.url) })));
 }
 
 /** A manager notifies people they manage. The database ignores anyone else. */
